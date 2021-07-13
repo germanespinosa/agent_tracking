@@ -85,43 +85,14 @@ Location_orientation get_location_orientation (Detection_location_list led_detec
     return lo;
 }
 
-
-void get_frame(Composite &c, vector<cv::Mat> &images, int frame, int fps, string &experiment, cv::VideoWriter &writer, bool view){
-    auto dest = c.get_composite(images).clone();
-    if (frame>=0) {
-        cv::putText(dest,
-                    to_string(frame).c_str(),
-                    cv::Point(5,15), // Coordinates
-                    cv::FONT_HERSHEY_DUPLEX, // Font
-                    .5, // Scale. 2.0 = 2x bigger
-                    cv::Scalar(255,255,255), // BGR Color
-                    1 // Line Thickness (Optional)
-        );
-        cv::putText(dest,
-                    experiment.c_str(),
-                    cv::Point(5,790), // Coordinates
-                    cv::FONT_HERSHEY_DUPLEX, // Font
-                    .5, // Scale. 2.0 = 2x bigger
-                    cv::Scalar(255,255,255), // BGR Color
-                    1 // Line Thickness (Optional)
-        );
-    }
-    if (frame>=0) {
-        writer.write(dest);
-    }
-    if (view) {
-        string fps_message = "fps:" + to_string(fps);
-        cv::putText(dest,
-                    fps_message.c_str(),
-                    cv::Point(920,15), // Coordinates
-                    cv::FONT_HERSHEY_DUPLEX, // Font
-                    .5, // Scale. 2.0 = 2x bigger
-                    cv::Scalar(255,255,255), // BGR Color
-                    1 // Line Thickness (Optional)
-        );
-        cv::imshow("original", dest);
-        if (cv::waitKey(1) == 'c') exit(0);
-    }
+string get_time(double time_stamp){
+    ostringstream oss;
+    unsigned int hour = (unsigned int)time_stamp / 60 / 60;
+    unsigned int minute = (unsigned int)(time_stamp / 60) % 60;
+    unsigned int second =(unsigned int)(time_stamp) % 60;
+    unsigned int millisecond = (unsigned int)(time_stamp * 1000) % 1000;
+    oss << setfill('0') << setw(2) << hour << ":"<<setw(2)<< minute<<":"<<setw(2)<<second<<"."<< setw(3)<< millisecond;
+    return oss.str();
 }
 
 int main(int argc, char **argv){
@@ -146,6 +117,12 @@ int main(int argc, char **argv){
     cv::Mat back_ground = cv::imread(bg_path);
     Time_stamp ts;
     auto size = cv::Size(980,862);
+    unsigned int title_row = 35;
+
+    cv::Rect rect_t(0,0, size.width, title_row);
+    cv::Rect rect_s(0,0, size.width, size.height);
+    cv::Rect rect_d(0, title_row, size.width,size.height );
+
     int fourcc = cv::VideoWriter::fourcc('m', 'p', '4', 'v');
     cv::VideoWriter writer;
     Detection detection;
@@ -160,7 +137,8 @@ int main(int argc, char **argv){
     }
     habitat_cv::Cleaner cleaner(35, 2);
     habitat_cv::Bg_subtraction bg_subtraction;
-    cv::Mat screen;
+    cv::Mat screen_s;
+    cv::Mat screen(size.height + title_row, size.width,CV_8UC3, cv::Scalar(0,0,0));
     Mask mask(size);
     bg_subtraction.set_background(back_ground);
     int frame = -1;
@@ -204,7 +182,9 @@ int main(int argc, char **argv){
         }
 
         auto &masked = mask.apply(clean);
-        cvtColor(comp, screen, cv::COLOR_GRAY2RGB);
+        cvtColor(comp, screen_s, cv::COLOR_GRAY2RGB);
+        screen_s(rect_s).copyTo(screen(rect_d));
+        screen(rect_t) = 0;
 
         if (leds_in_image.size() == 3){
             robot_location_orientation = get_location_orientation(leds_in_image);
@@ -227,7 +207,6 @@ int main(int argc, char **argv){
 
         auto detections = detection.get_detections(masked, profiles);
         for (auto &d:detections) {
-            //cout << d.location.dist(robot_location_orientation.location) << endl;
             if (d.location.dist(robot_location_orientation.location) > 45) {
                 auto center = d.location.to<cv::Point>();
                 auto coordinates = composite.get_coordinates(center);
@@ -249,18 +228,30 @@ int main(int argc, char **argv){
         if (frame >= 0 ) {
             frame++;
             cv::putText(screen,
-                        to_string(frame).c_str(),
-                        cv::Point(5,15), // Coordinates
+                        get_time(time_stamp).c_str(),
+                        cv::Point(size.width - 180,title_row / 3 * 2), // Coordinates
                         cv::FONT_HERSHEY_DUPLEX, // Font
-                        .5, // Scale. 2.0 = 2x bigger
+                        .8, // Scale. 2.0 = 2x bigger
                         cv::Scalar(255,255,255), // BGR Color
                         1 // Line Thickness (Optional)
             );
+            int baseline=0;
+            auto text = to_string(frame).c_str();
+            auto textsize = cv::getTextSize(text, cv::FONT_HERSHEY_DUPLEX, .8, 1,&baseline);
+            cv::putText(screen,
+                        text,
+                        cv::Point(size.width - 200 - textsize.width,title_row / 3 * 2), // Coordinates
+                        cv::FONT_HERSHEY_DUPLEX, // Font
+                        .8, // Scale. 2.0 = 2x bigger
+                        cv::Scalar(255,255,255), // BGR Color
+                        1 // Line Thickness (Optional)
+            );
+
             cv::putText(screen,
                         experiment.c_str(),
-                        cv::Point(5,790), // Coordinates
+                        cv::Point(5,title_row / 3 * 2), // Coordinates
                         cv::FONT_HERSHEY_DUPLEX, // Font
-                        .5, // Scale. 2.0 = 2x bigger
+                        .8, // Scale. 2.0 = 2x bigger
                         cv::Scalar(255,255,255), // BGR Color
                         1 // Line Thickness (Optional)
             );
