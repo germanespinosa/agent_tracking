@@ -118,6 +118,7 @@ int main(int argc, char **argv){
     Time_stamp ts;
     auto size = cv::Size(980,862);
     unsigned int title_row = 35;
+    auto video_size = cv::Size(980,862 + title_row);
 
     cv::Rect rect_t(0,0, size.width, title_row);
     cv::Rect rect_s(0,0, size.width, size.height);
@@ -163,7 +164,7 @@ int main(int argc, char **argv){
             } else{
                 experiment = s.substr(s.find_last_of('/') + 1,255);
                 string filename = s + ".mp4";
-                writer = cv::VideoWriter (filename, fourcc, 30, size, true);
+                writer = cv::VideoWriter (filename, fourcc, 30, video_size, true);
                 frame = 0;
                 ts.reset();
             }
@@ -223,7 +224,6 @@ int main(int argc, char **argv){
                 cout << fd << endl;
             }
         }
-
 
         if (frame >= 0 ) {
             frame++;
