@@ -10,6 +10,7 @@ struct Camera_array{
     const habitat_cv::Camera_order &camera_order;
     std::vector<cv::Mat> images;
     ~Camera_array();
+    unsigned int camera_index(cv::Point);
 private:
     std::string config_file;
     void open ();

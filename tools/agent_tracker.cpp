@@ -176,6 +176,12 @@ int main(int argc, char **argv){
         cv::Mat leds = (comp > 200 ) & mask.mask ;
         auto leds_in_image = detection.get_detections(leds,led_profile);
 
+        if (leds_in_image.size() != 3) { // can't find the robot in the composite
+            //let's try with the best camera for the job using the previous read
+            auto best_cam_index = ca.camera_index(robot_location_orientation.location.to<cv::Point>());
+            leds = (composite.warped[best_cam_index] > 200) & mask.mask;
+            leds_in_image = detection.get_detections(leds, led_profile);
+        }
         unsigned int ic = 0;
         while (leds_in_image.size() != 3 && ic < 4) {
             leds = (composite.warped[ic++] > 200) & mask.mask;
@@ -184,8 +190,7 @@ int main(int argc, char **argv){
 
         auto &masked = mask.apply(clean);
         cvtColor(comp, screen_s, cv::COLOR_GRAY2RGB);
-        screen_s(rect_s).copyTo(screen(rect_d));
-        screen(rect_t) = 0;
+
 
         if (leds_in_image.size() == 3){
             robot_location_orientation = get_location_orientation(leds_in_image);
@@ -200,9 +205,9 @@ int main(int argc, char **argv){
             fd.detection_coordinates.coordinates = robot_coordinates;
             fd.detection_coordinates.detection_location.location.x /= size.width;
             fd.detection_coordinates.detection_location.location.y /= size.height;
-            composite.draw_circle(screen,center,4,cv::Scalar(0,255,0));
-            composite.draw_arrow(screen,center,fd.theta,cv::Scalar(0,255,0));
-            composite.draw_cell(screen,robot_coordinates,cv::Scalar(0,255,0));
+            composite.draw_circle(screen_s,center,4,cv::Scalar(0,255,0));
+            composite.draw_arrow(screen_s,center,fd.theta,cv::Scalar(0,255,0));
+            composite.draw_cell(screen_s,robot_coordinates,cv::Scalar(0,255,0));
             cout << fd << endl;
         }
 
@@ -219,12 +224,14 @@ int main(int argc, char **argv){
                 fd.detection_coordinates.detection_location.location.x /= size.width;
                 fd.detection_coordinates.detection_location.location.y /= size.height;
                 fd.theta = 0;
-                composite.draw_circle(screen, center, 4, cv::Scalar(255, 0, 0));
-                composite.draw_cell(screen, coordinates, cv::Scalar(255, 0, 0));
+                composite.draw_circle(screen_s, center, 4, cv::Scalar(255, 0, 0));
+                composite.draw_cell(screen_s, coordinates, cv::Scalar(255, 0, 0));
                 cout << fd << endl;
             }
         }
 
+        screen_s(rect_s).copyTo(screen(rect_d));
+        screen(rect_t) = 0;
         if (frame >= 0 ) {
             frame++;
             cv::putText(screen,

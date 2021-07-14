@@ -21,11 +21,7 @@ void Camera_array::capture() {
     for (unsigned int c=0; c < camera_order.count(); c++) {
         int grabber_bit_map = 1 << c; // frame grabber identifier is 4 bits with a 1 on the device number.
         pxd_readuchar(grabber_bit_map, 1, 0, 0, -1, -1, images[c].data, frame_size, "Grey");
-//        futures.push_back(async(std::launch::async, pxd_readuchar, grabber_bit_map, 1, 0, 0, -1, -1, images[c].data, frame_size, "Grey"));
     }
-//    for (auto &future:futures) {
-//        future.wait();
-//    }
 }
 
 std::vector<cv::Mat> Camera_array::clones() {
@@ -60,5 +56,11 @@ void Camera_array::open() {
 
 void Camera_array::close() {
     pxd_PIXCIclose();
+}
+
+unsigned int Camera_array::camera_index(cv::Point point) {
+    unsigned int camera_row = point.x > .5;
+    unsigned int camera_col = point.y > .5;
+    return camera_order[camera_row][camera_col];
 }
 
