@@ -7,6 +7,8 @@
 #include "opencv2/video.hpp"
 #include <mutex>
 
+#define WAIT_FOR_ROBOT_DELETION 10
+
 using namespace habitat_cv;
 using namespace cell_world;
 using namespace std;
@@ -145,7 +147,9 @@ int main(int argc, char **argv){
     int frame = -1;
     string experiment = "";
     Location_orientation robot_location_orientation;
+    unsigned int remove_robot_counter = 0;
     while (true) {
+        bool robot_detected = false;
         fr.new_frame();
         ca.capture();
         double time_stamp = ts.to_seconds();
@@ -193,6 +197,7 @@ int main(int argc, char **argv){
 
 
         if (leds_in_image.size() == 3){
+            robot_detected = true;
             robot_location_orientation = get_location_orientation(leds_in_image);
             Frame_detection fd;
             fd.detection_coordinates.detection_location.profile.agent_name = "robot";
@@ -210,10 +215,17 @@ int main(int argc, char **argv){
             composite.draw_cell(screen_s,robot_coordinates,cv::Scalar(0,255,0));
             cout << fd << endl;
         }
-
+        if (robot_detected) {
+            remove_robot_counter = 0;
+        } else {
+            remove_robot_counter++;
+        }
+        if (remove_robot_counter > WAIT_FOR_ROBOT_DELETION) {
+            robot_location_orientation.location = {-1000,-1000};
+        }
         auto detections = detection.get_detections(masked, profiles);
         for (auto &d:detections) {
-            if (d.location.dist(robot_location_orientation.location) > 45) {
+            if (d.location.dist(robot_location_orientation.location) > 55) {
                 auto center = d.location.to<cv::Point>();
                 auto coordinates = composite.get_coordinates(center);
                 Frame_detection fd;
