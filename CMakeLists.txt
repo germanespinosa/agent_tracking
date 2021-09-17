@@ -21,7 +21,7 @@ find_package( Habitat_cv REQUIRED)
 
 set( agent_tracking_files
 	 src/camera_array.cpp
-		src/input_handler.cpp include/frame_rate.h src/frame_rate.cpp include/mask.h src/mask.cpp include/time_stamp.h src/time_stamp.cpp include/classifier.h tools/robot_controller/robot_controller.cpp)
+		src/input_handler.cpp include/frame_rate.h src/frame_rate.cpp include/mask.h src/mask.cpp include/time_stamp.h src/time_stamp.cpp include/classifier.h tools/robot_controller/src/robot_controller.cpp)
 
 
 SET(CMAKE_CXX_FLAGS  "-DC_GNU64=400 -DOS_LINUX -no-pie -Wall -Wextra")
@@ -44,7 +44,7 @@ target_include_directories(agent_tracking
 		/usr/local/xclib/inc/ )
 
 
-add_executable(robot_controller tools/robot_controller/robot_controller.cpp)
+add_executable(robot_controller tools/robot_controller/src/robot_controller.cpp tools/robot_controller/include/controller.h tools/robot_controller/include/ptcp.h tools/robot_controller/src/controller.cpp tools/robot_controller/src/ptcp.cpp)
 target_link_libraries(robot_controller agent_tracking)
 
 
