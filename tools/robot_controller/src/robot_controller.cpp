@@ -12,15 +12,21 @@ using namespace json_cpp;
 using namespace cell_world;
 using namespace habitat_cv;
 
-int speed = 400;
+int BASE_SPEED = 70;
+int PROPORTIONAL_SPEED = 10;
+int DERIV_SPEED = -5;
+
+//TODO: test these error margins
+int TRANS_ERROR_MARGIN = 0.02;
+int ROT_ERROR_MARGIN = 0.02;
 
 
 struct Frame_detection : Json_object{
     Json_object_members(
-    Add_member(frame);
-    Add_member(time_stamp);
-    Add_member(theta);
-    Add_member(detection_coordinates);
+            Add_member(frame);
+            Add_member(time_stamp);
+            Add_member(theta);
+            Add_member(detection_coordinates);
     )
     unsigned int frame;
     double time_stamp;
@@ -29,39 +35,58 @@ struct Frame_detection : Json_object{
 };
 
 
-//translational movement to x value
-motor_data traverse_to(location dest, location robot_loc) {
-    motor_data m;
-
-    //TODO: decide on a proper and tested error value
-    if (abs(dest.x - robot_loc.x) < 0.02) {
-        m.axis1 = 0;
-        m.axis2 = 0;
+//TODO: is this the proper way to do this function
+float sgn(float val) {
+    if (val  < __FLT_MIN__) {
+        return 0;
     } else {
-        float sign = (robot_loc.x - dest.x) / abs((robot_loc.x - dest.x));
-
-        //TODO: change the robot code so that the sign does not have to be reversed here ever!!
-        m.axis1 = -1 * sign * speed;
-        m.axis2 = sign * speed;
+        return val / abs(val);
     }
+}
+
+//translational movement to x value
+motor_data traverse_to(location dest, location robot_loc, motor_data &prev_motors) {
+    motor_data m;
+    float speed;
+    //float deriv = 0;
+
+    float dist = dest.x - robot_loc.x;
+    float direction = sgn(dist); //NOTE: is this the correct direction?
+
+    if (abs(dist) < TRANS_ERROR_MARGIN) {
+        speed = 0;
+    } else {
+        speed = BASE_SPEED + (PROPORTIONAL_SPEED * dist); //+ (DERIV_SPEED * deriv);
+    }
+
+    m.axis1 = -1 * direction * speed;
+    m.axis2 = direction * speed;
+
+    m.axis1 = direction * speed;
+    m.axis2 = direction * speed;
     return m;
 }
 
 //rotational movement to angle value (radians)
-motor_data rotate_to(location dest, location robot_loc) {
+motor_data rotate_to(location dest, location robot_loc, motor_data &prev_motors) {
     motor_data m;
+    float speed;
+    //float deriv = 0;
 
     //TODO: decide on a proper and tested error value
-    if (abs(dest.theta - robot_loc.theta) < 0.2) {
-        m.axis1 = 0;
-        m.axis2 = 0;
-    } else {
-        float sign = (robot_loc.theta - dest.theta) / abs((robot_loc.theta - dest.theta));
+    float dist = dest.theta - robot_loc.theta;
+    float direction = sgn(dist);
 
-        //TODO: change the robot code so that the sign has to be reversed here!!
-        m.axis1 = sign * speed;
-        m.axis2 = sign * speed;
+
+
+    if (abs(dist) < ROT_ERROR_MARGIN) {
+        speed = 0;
+    } else {
+        speed = BASE_SPEED + (PROPORTIONAL_SPEED * dist); //+ (DERIV_SPEED * deriv);
     }
+
+    m.axis1 = -1 * direction * speed;
+    m.axis2 = direction * speed;
     return m;
 }
 
@@ -72,6 +97,9 @@ int main(){
     //location mouse_loc;
 
     motor_data motors;
+    motor_data prev_motors;
+    prev_motors.axis1 = 0;
+    prev_motors.axis2 = 0;
 
     //Connect a TCP socket to the predator
     int connected = tcp_connect();
@@ -107,13 +135,10 @@ int main(){
             robot_loc.theta = fd.theta;
 
             //TODO: normalize x and y to each other? (y is longer for hexagon)
-            //TODO: use this to compute the next PWM value to send based on the current location to send
-            //set_pwm_for_dest(mouse_loc, robot_loc, motors);
-
 
 
             cout << "pos: " << robot_loc.x << ", " << robot_loc.y << ", " << robot_loc.theta << endl;
-            motors = rotate_to(dest, robot_loc);
+            motors = rotate_to(dest, robot_loc, prev_motors);
             cout << "motors: " << motors.axis1 << ", " << motors.axis2 << endl;
 
             int ssent = send_values(motors);
@@ -121,6 +146,8 @@ int main(){
                 printf("Failure sending a value. Terminating program");
                 return -1;
             }
+
+            prev_motors = motors;
         }
     }
     f.close();
