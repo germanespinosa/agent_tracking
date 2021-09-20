@@ -73,10 +73,8 @@ motor_data rotate_to(location dest, location robot_loc, motor_data &prev_motors)
     float speed;
     //float deriv = 0;
 
-    //TODO: decide on a proper and tested error value
     float dist = dest.theta - robot_loc.theta;
     float direction = sgn(dist);
-
 
 
     if (abs(dist) < ROT_ERROR_MARGIN) {
