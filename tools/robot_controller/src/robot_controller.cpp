@@ -12,7 +12,10 @@ using namespace json_cpp;
 using namespace cell_world;
 using namespace habitat_cv;
 
-int speed = 400;
+int LOW_SPEED = 70;
+
+int TRANS_ERROR_MARGIN = 0.02;
+int ROT_ERROR_MARGIN = 0.02;
 
 
 struct Frame_detection : Json_object{
@@ -34,14 +37,14 @@ motor_data traverse_to(location dest, location robot_loc) {
     motor_data m;
 
     //TODO: decide on a proper and tested error value
-    if (abs(dest.x - robot_loc.x) < 0.02) {
+    if (abs(dest.x - robot_loc.x) < TRANS_ERROR_MARGIN) {
         m.axis1 = 0;
         m.axis2 = 0;
     } else {
         float sign = (robot_loc.x - dest.x) / abs((robot_loc.x - dest.x));
 
         //TODO: change the robot code so that the sign does not have to be reversed here ever!!
-        m.axis1 = -1 * sign * speed;
+        m.axis1 = sign * speed;
         m.axis2 = sign * speed;
     }
     return m;
@@ -52,14 +55,14 @@ motor_data rotate_to(location dest, location robot_loc) {
     motor_data m;
 
     //TODO: decide on a proper and tested error value
-    if (abs(dest.theta - robot_loc.theta) < 0.2) {
+    if (abs(dest.theta - robot_loc.theta) < ROT_ERROR_MARGIN) {
         m.axis1 = 0;
         m.axis2 = 0;
     } else {
         float sign = (robot_loc.theta - dest.theta) / abs((robot_loc.theta - dest.theta));
 
         //TODO: change the robot code so that the sign has to be reversed here!!
-        m.axis1 = sign * speed;
+        m.axis1 = -1 * sign * speed;
         m.axis2 = sign * speed;
     }
     return m;
