@@ -10,8 +10,11 @@
 #define ROTATE_PWM 100
 
 struct motor_data {
-    int32_t axis1 = 0;
-    int32_t axis2 = 0;
+    int32_t axis1;
+    int32_t axis2;
+    bool light_trigger;
+    bool stimulus_trigger;
+
 };
 
 struct location {
