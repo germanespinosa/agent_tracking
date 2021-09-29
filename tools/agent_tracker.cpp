@@ -44,19 +44,6 @@ struct Colored_profile_list : Json_vector<Colored_profile> {
     }
 };
 
-struct Frame_detection : Json_object{
-    Json_object_members(
-            Add_member(frame);
-            Add_member(time_stamp);
-            Add_member(theta);
-            Add_member(detection_coordinates);
-            )
-    unsigned int frame;
-    double time_stamp;
-    double theta;
-    Detection_coordinates detection_coordinates;
-};
-
 Location_orientation get_location_orientation (Detection_location_list led_detections){
     double d1 = led_detections[0].location.dist(led_detections[1].location);
     double d2 = led_detections[1].location.dist(led_detections[2].location);
