@@ -20,8 +20,12 @@ find_package( Habitat_cv REQUIRED)
 ###
 
 set( agent_tracking_files
-	 src/camera_array.cpp
-		src/input_handler.cpp include/frame_rate.h src/frame_rate.cpp include/mask.h src/mask.cpp include/time_stamp.h src/time_stamp.cpp include/classifier.h tools/robot_controller.cpp)
+	src/camera_array.cpp
+	src/input_handler.cpp
+	src/frame_rate.cpp
+	src/mask.cpp
+	src/time_stamp.cpp
+	tools/robot_controller.cpp)
 
 
 SET(CMAKE_CXX_FLAGS  "-DC_GNU64=400 -DOS_LINUX -no-pie -Wall -Wextra")
@@ -57,8 +61,6 @@ target_link_libraries(capture agent_tracking)
 add_executable(speed_test tools/speed_test.cpp)
 target_link_libraries(speed_test agent_tracking)
 
-
-#file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/config DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 
 ###
 ### TESTS
