@@ -4,7 +4,7 @@ if(NOT CMAKE_BUILD_TYPE)
 endif()
 
 
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 
 project(agent_tracking
 		VERSION 2019.1.0
@@ -14,6 +14,7 @@ project(agent_tracking
 find_package( Cellworld REQUIRED )
 find_package( OpenCV 4.0.1 REQUIRED )
 find_package( Habitat_cv REQUIRED)
+find_package(Easy-tcp REQUIRED)
 
 ###
 ### MAIN LIBRARY SETUP
@@ -25,7 +26,7 @@ set( agent_tracking_files
 	src/frame_rate.cpp
 	src/mask.cpp
 	src/time_stamp.cpp
-	tools/robot_controller.cpp)
+	tools/robot_controller.cpp include/message.h)
 
 
 SET(CMAKE_CXX_FLAGS  "-DC_GNU64=400 -DOS_LINUX -no-pie -Wall -Wextra")
@@ -34,7 +35,7 @@ set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 
 add_library(agent_tracking ${agent_tracking_files})
 
-target_link_libraries(agent_tracking ${OpenCV_LIBS})
+target_link_libraries(agent_tracking ${OpenCV_LIBS} easy-tcp)
 target_link_libraries(agent_tracking habitat_cv)
 target_link_libraries(agent_tracking /usr/local/xclib/lib/pxipl_x86_64.a  /usr/local/xclib/lib/xclib_x86_64.a m -pthread )
 target_link_libraries(agent_tracking cellworld)

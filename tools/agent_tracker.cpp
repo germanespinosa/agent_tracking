@@ -1,3 +1,4 @@
+#include <message.h>
 #include <habitat_cv.h>
 #include <camera_array.h>
 #include <input_handler.h>
@@ -6,6 +7,7 @@
 #include <mask.h>
 #include "opencv2/video.hpp"
 #include <mutex>
+#include <easy_tcp.h>
 
 #define WAIT_FOR_ROBOT_DELETION 10
 
@@ -13,6 +15,7 @@ using namespace habitat_cv;
 using namespace cell_world;
 using namespace std;
 using namespace json_cpp;
+using namespace easy_tcp;
 
 
 struct Location_orientation {
@@ -84,11 +87,19 @@ string get_time(double time_stamp){
     return oss.str();
 }
 
+int get_port() {
+    string port_str (std::getenv("CELLWORLD_ROBOT_CONTROLLER_PORT")?std::getenv("CELLWORLD_ROBOT_CONTROLLER_PORT"):"4000");
+    return atoi(port_str.c_str());
+}
+
 int main(int argc, char **argv){
     if (argc==1){
         cerr << "missing camera configuration parameter." << endl;
         exit(1);
     }
+    Message robot_controller_message;
+    int port = get_port();
+    Connection robot_controller_connection = Connection::connect_remote("127.0.0.1",port);
     string cam_config(argv[1]);
     Frame_rate fr;
     Profile_list led_profile;
@@ -200,6 +211,11 @@ int main(int argc, char **argv){
             composite.draw_circle(screen_s,center,4,cv::Scalar(0,255,0));
             composite.draw_arrow(screen_s,center,fd.theta,cv::Scalar(0,255,0));
             composite.draw_cell(screen_s,robot_coordinates,cv::Scalar(0,255,0));
+
+            robot_controller_message.content = fd.to_agent_info().to_json();
+            string nm = robot_controller_message.to_json();
+            robot_controller_connection.send_data(nm.c_str(), nm.size() + 1);
+
             cout << fd << endl;
         }
         if (robot_detected) {
@@ -225,6 +241,11 @@ int main(int argc, char **argv){
                 fd.theta = 0;
                 composite.draw_circle(screen_s, center, 4, cv::Scalar(255, 0, 0));
                 composite.draw_cell(screen_s, coordinates, cv::Scalar(255, 0, 0));
+
+                robot_controller_message.content = fd.to_agent_info().to_json();
+                string nm = robot_controller_message.to_json();
+                robot_controller_connection.send_data(nm.c_str(), nm.size() + 1);
+
                 cout << fd << endl;
             }
         }
