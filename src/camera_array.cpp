@@ -7,8 +7,8 @@
 using namespace std;
 using namespace habitat_cv;
 
-Camera_array::Camera_array(const std::string &config_file_path, const habitat_cv::Camera_order &camera_order) :
-camera_order(camera_order) , config_file(config_file_path){
+Camera_array::Camera_array(const std::string &config_file_path, unsigned int camera_count) :
+        camera_count(camera_count) , config_file(config_file_path){
     open();
 }
 
@@ -18,18 +18,10 @@ Camera_array::~Camera_array() {
 
 void Camera_array::capture() {
     vector<std::future<int>> futures;
-    for (unsigned int c=0; c < camera_order.count(); c++) {
+    for (unsigned int c=0; c < camera_count; c++) {
         int grabber_bit_map = 1 << c; // frame grabber identifier is 4 bits with a 1 on the device number.
         pxd_readuchar(grabber_bit_map, 1, 0, 0, -1, -1, images[c].data, frame_size, "Grey");
     }
-}
-
-std::vector<cv::Mat> Camera_array::clones() {
-    std::vector<cv::Mat> res;
-    for (auto &image:images){
-        res.push_back(image.clone());
-    }
-    return res;
 }
 
 void Camera_array::reset() {
@@ -38,18 +30,14 @@ void Camera_array::reset() {
 }
 
 void Camera_array::open() {
-    if (!file_exists(config_file)) {
-        cerr << "configuration file " << config_file << " not found" << endl;
-        exit(1);
-    }
     pxd_PIXCIopen("", "", config_file.c_str());
     if (pxd_goLive(15, 1)){
         cerr << "Failed to initialize frame grabbers" << endl;
         exit(1);
     }
     cv::Size size = {pxd_imageXdim(), pxd_imageYdim()};
-    for (unsigned int c=0; c < camera_order.count(); c++){
-        images.emplace_back(size.height,size.width,CV_8UC1);
+    for (unsigned int c=0; c < camera_count; c++){
+        images.emplace_back(size.height,size.width,Image::Type::gray);
     }
     frame_size = size.width * size.height;
 }
@@ -57,10 +45,3 @@ void Camera_array::open() {
 void Camera_array::close() {
     pxd_PIXCIclose();
 }
-
-unsigned int Camera_array::camera_index(cv::Point point) {
-    unsigned int camera_row = point.x > .5;
-    unsigned int camera_col = point.y > .5;
-    return camera_order[camera_row][camera_col];
-}
-

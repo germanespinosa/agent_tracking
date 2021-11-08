@@ -14,7 +14,7 @@ project(agent_tracking
 find_package( Cellworld REQUIRED )
 find_package( OpenCV 4.0.1 REQUIRED )
 find_package( Habitat_cv REQUIRED)
-find_package(Easy-tcp REQUIRED)
+find_package( Easy-tcp REQUIRED)
 
 ###
 ### MAIN LIBRARY SETUP
@@ -22,11 +22,12 @@ find_package(Easy-tcp REQUIRED)
 
 set( agent_tracking_files
 	src/camera_array.cpp
-	src/input_handler.cpp
 	src/frame_rate.cpp
-	src/mask.cpp
 	src/time_stamp.cpp
-	tools/robot_controller.cpp include/message.h)
+	src/layouts.cpp
+	src/agent_tracking_service.cpp
+	src/agent_tracking.cpp
+	src/background.cpp)
 
 
 SET(CMAKE_CXX_FLAGS  "-DC_GNU64=400 -DOS_LINUX -no-pie -Wall -Wextra")
@@ -49,19 +50,11 @@ target_include_directories(agent_tracking
 		/usr/local/xclib/inc/ )
 
 
-add_executable(robot_controller tools/robot_controller.cpp)
-target_link_libraries(robot_controller agent_tracking)
-
-
 add_executable(agent_tracker tools/agent_tracker.cpp)
 target_link_libraries(agent_tracker agent_tracking)
 
-add_executable(capture tools/capture.cpp)
-target_link_libraries(capture agent_tracking)
-
-add_executable(speed_test tools/speed_test.cpp)
-target_link_libraries(speed_test agent_tracking)
-
+add_executable(sim tools/sim_episode.cpp)
+target_link_libraries(sim agent_tracking)
 
 ###
 ### TESTS

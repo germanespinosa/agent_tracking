@@ -1,7 +1,7 @@
 #include <catch.h>
-#include <camera_array.h>
 #include <fstream>
 #include <habitat_cv.h>
+#include <layouts.h>
 
 using namespace std;
 using namespace habitat_cv;
@@ -31,17 +31,30 @@ using namespace cell_world;
 //
 //}
 
-string get_time(double time_stamp){
-    ostringstream oss;
-    unsigned int hour = (unsigned int)time_stamp / 60 / 60;
-    unsigned int minute = (unsigned int)(time_stamp / 60) % 60;
-    unsigned int second =(unsigned int)(time_stamp) % 60;
-    unsigned int millisecond = (unsigned int)(time_stamp * 1000) % 1000;
-    oss << setfill('0') << setw(2) << hour << ":"<<setw(2)<< minute<<":"<<setw(2)<<second<<"."<< setw(3)<< millisecond;
-    return oss.str();
-}
+//string get_time(double time_stamp){
+//    ostringstream oss;
+//    unsigned int hour = (unsigned int)time_stamp / 60 / 60;
+//    unsigned int minute = (unsigned int)(time_stamp / 60) % 60;
+//    unsigned int second =(unsigned int)(time_stamp) % 60;
+//    unsigned int millisecond = (unsigned int)(time_stamp * 1000) % 1000;
+//    oss << setfill('0') << setw(2) << hour << ":"<<setw(2)<< minute<<":"<<setw(2)<<second<<"."<< setw(3)<< millisecond;
+//    return oss.str();
+//}
+
+//
+//TEST_CASE("get_time"){
+//    CHECK(get_time (100.430)=="00:01:40.430");
+//}
 
 
-TEST_CASE("get_time"){
-    CHECK(get_time (100.430)=="00:01:40.430");
+
+TEST_CASE("Layouts"){
+    string bg_path = "/maze/agent_tracking/backgrounds/experiment/";
+    auto images = Images::read(bg_path,{"camera_0.png","camera_1.png","camera_2.png","camera_3.png"});
+    auto composite = Image::read(bg_path,"composite.png");
+    Main_layout main_layout("FPP1","ROBOT",1);
+
+    auto main_frame = main_layout.get_frame(composite.to_rgb(), 5);
+    cv::imshow("main layout", main_frame);
+    cv::waitKey();
 }
