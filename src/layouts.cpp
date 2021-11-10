@@ -73,11 +73,11 @@ habitat_cv::Image Raw_layout::get_frame(const Images &images) {
 }
 
 Screen_layout::Screen_layout():
-    Layout(530,500,Image::rgb),
-    screen({500,500},Image::rgb),
-    screen_text({500,30},Image::rgb,{255,255,255},{30,30,30},1,1,1){
+    Layout(830,800,Image::rgb),
+    screen({800,800},Image::rgb),
+    screen_text({800,30},Image::rgb,{255,255,255},{30,30,30},1,1,1){
     add_place_holder(screen,{0,0});
-    add_place_holder(screen_text,{0, 500});
+    add_place_holder(screen_text,{0, 800});
 }
 
 habitat_cv::Image Screen_layout::get_frame(const Image &image, const string &text) {
