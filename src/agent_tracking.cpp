@@ -7,17 +7,14 @@
 #include <easy_tcp.h>
 #include <time_stamp.h>
 #include <message.h>
-#include <mutex>
 
-#define SAFETY_MARGIN 50
-#define PUFF_DURATION 10
+#define SAFETY_MARGIN 75
+#define PUFF_DURATION 15
 
 using namespace habitat_cv;
 using namespace cell_world;
 using namespace easy_tcp;
 using namespace std;
-
-mutex video_mutex;
 
 std::atomic<bool> tracking_running = false;
 Camera_array *cameras = nullptr;
@@ -34,13 +31,14 @@ vector<int> consumers_id;
 atomic<int> puff_state;
 Cell_group occlusions;
 
-Background *background = nullptr;
+Background background;
 Screen_layout screen_layout;
 Main_layout main_layout;
 Raw_layout raw_layout;
-Video *main_video = nullptr;
-Video *raw_video = nullptr;
-Video *mouse_video = nullptr;
+
+Video main_video(main_layout.size(), Image::rgb);
+Video raw_video (raw_layout.size(), Image::gray);
+Video mouse_video (raw_layout.size(), Image::gray);
 
 
 void send_update(const Step &step){
@@ -48,7 +46,9 @@ void send_update(const Step &step){
         string message = Message("step",step.to_json()).to_json();
         try {
             consumer.get().send_data(message.c_str(), message.size() + 1);
-        } catch(...) {}
+        } catch(...) {
+
+        }
     }
 }
 
@@ -58,7 +58,7 @@ void Agent_tracking::set_camera_file(const std::string &file_path) {
 }
 
 bool get_mouse_step(const Image& diff, Step &step, const Location &robot_location){
-    auto mouse_candidates = Detection_list::get_detections(diff,35, 2).filter(mouse_profile);
+    auto mouse_candidates = Detection_list::get_detections(diff,55, 2).filter(mouse_profile);
     for (auto &mouse:mouse_candidates) {
         if (mouse.location.dist(robot_location) < SAFETY_MARGIN) continue;
         step.agent_name = "mouse";
@@ -102,8 +102,7 @@ bool get_robot_step(const Image& image, Step &step){
 void Agent_tracking::initialize_background() {
     cameras->capture();
     auto composite_image = composite.get_composite(cameras->images);
-    background->update(composite_image, composite.warped);
-    cameras->images.save(background->path,{"raw_0.png","raw_1.png","raw_2.png","raw_3.png"});
+    background.update(composite_image, composite.warped);
 }
 
 #define NOLOCATION Location(-1000,-1000)
@@ -136,7 +135,7 @@ void Agent_tracking::tracking_process ()
         cameras->capture();
         auto composite_image_gray = composite.get_composite(cameras->images);
         auto composite_image_rgb = composite_image_gray.to_rgb();
-        auto diff = composite_image_gray.diff(background->composite);
+        auto diff = composite_image_gray.diff(background.composite);
         if (robot_best_cam == -1) {
             new_robot_data =get_robot_step(composite_image_gray, robot);
         } else {
@@ -146,8 +145,8 @@ void Agent_tracking::tracking_process ()
             }
         }
         unsigned int frame_number = 0;
-        if (main_video) {
-            frame_number = main_video->frame_count;
+        if (main_video.is_open()) {
+            frame_number = main_video.frame_count;
         }
         if ( new_robot_data ) {
             if ((robot.location.x < 500 || robot.location.x > 580) &&
@@ -240,7 +239,7 @@ void Agent_tracking::tracking_process ()
                 screen_frame = screen_layout.get_frame( cameras->images[3], "cam3");
                 break;
         }
-        if (main_video) screen_frame.circle({20,20},10,{0,0,255},true);
+        if (main_video.is_open()) screen_frame.circle({20,20},10,{0,0,255},true);
         cv::imshow("Agent Tracking", screen_frame);
         auto key = cv::waitKey(1);
         switch (key){
@@ -265,36 +264,34 @@ void Agent_tracking::tracking_process ()
         if (mouse.location == NOLOCATION) continue; // starts recording when mouse crosses the door
 
         thread t([main_frame,raw_frame,mouse_frame](){
-            video_mutex.lock();
-            if (main_video) main_video->add_frame(main_frame);
-            if (raw_video) raw_video->add_frame(raw_frame);
-            if (mouse_video) mouse_video->add_frame(mouse_frame);
-            video_mutex.unlock();
+            main_video.add_frame(main_frame);
+            raw_video.add_frame(raw_frame);
+            mouse_video.add_frame(mouse_frame);
         });
         t.detach();
-        if (!main_video) mouse.location = NOLOCATION;
+        if (main_video.is_open()) mouse.location = NOLOCATION;
         // write videos
     }
 
 }
 
 void Agent_tracking::new_episode(const New_episode_message &nem) {
-    if (main_video) end_episode();
-    occlusions.clear();
-    try {
-        occlusions = composite.world.create_cell_group(
-                Resources::from("cell_group").key("hexagonal").key(nem.occlusions).key("occlusions").get_resource<Cell_group_builder>());
-    } catch (...) {}
+    if (main_video.is_open()) end_episode();
     cout << "Video destination folder: " + nem.destination_folder << endl;
+    set_occlusions(nem.occlusions);
     main_layout.new_episode(nem.subject, nem.experiment, nem.episode, nem.occlusions);
-    main_video = new Video(nem.destination_folder + "/main.mp4", main_layout.size(), Image::rgb );
-    raw_video = new Video(nem.destination_folder + "/raw.mp4", raw_layout.size(), Image::gray);
-    mouse_video = new Video(nem.destination_folder + "/mouse.mp4", raw_layout.size(), Image::gray);
+    main_video.new_video(nem.destination_folder + "/main.mp4");
+    raw_video.new_video(nem.destination_folder + "/raw.mp4");
+    mouse_video.new_video(nem.destination_folder + "/mouse.mp4");
 }
 
 void Agent_tracking::set_background_path(const std::string &path) {
-    if (background) delete background;
-    background = new Background(path);
+    background.set_path(path);
+    if (!background.load()) {
+        cameras->capture();
+        composite.get_composite(cameras->images);
+        background.update(composite.composite, composite.warped);
+    }
 }
 
 unsigned int consumers_count = 0;
@@ -319,15 +316,10 @@ void Agent_tracking::deregister_consumer(int consumer_id) {
 }
 
 void Agent_tracking::end_episode() {
-    video_mutex.lock();
-    delete main_video;
-    delete mouse_video;
-    delete raw_video;
-    main_video = nullptr;
-    mouse_video = nullptr;
-    raw_video = nullptr;
+    main_video.close();
+    mouse_video.close();
+    raw_video.close();
     reset_cameras();
-    video_mutex.unlock();
 }
 
 void Agent_tracking::update_puff() {
@@ -336,6 +328,14 @@ void Agent_tracking::update_puff() {
 
 void Agent_tracking::reset_cameras() {
     cameras->reset();
+}
+
+void Agent_tracking::set_occlusions(const string &occlusions_name) {
+    occlusions.clear();
+    try {
+        occlusions = composite.world.create_cell_group(
+                Resources::from("cell_group").key("hexagonal").key(occlusions_name).key("occlusions").get_resource<Cell_group_builder>());
+    } catch (...) {}
 }
 
 

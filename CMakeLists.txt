@@ -27,7 +27,7 @@ set( agent_tracking_files
 	src/layouts.cpp
 	src/agent_tracking_service.cpp
 	src/agent_tracking.cpp
-	src/background.cpp)
+	src/background.cpp include/client.h)
 
 
 SET(CMAKE_CXX_FLAGS  "-DC_GNU64=400 -DOS_LINUX -no-pie -Wall -Wextra")

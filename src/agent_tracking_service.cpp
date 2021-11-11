@@ -56,6 +56,12 @@ void Agent_tracking_service::on_incoming_data(const string &message_str) {
         send_data(Message("update_puff_result","ok").to_json());
         return;
     }
+    if (message.command == "set_occlusions") {
+        cout << "set_occlusions" << endl;
+        Agent_tracking::set_occlusions(message.content);
+        send_data(Message("set_occlusions_result","ok").to_json());
+        return;
+    }
     send_data(Message("wrong_message_result","fail").to_json());
 }
 

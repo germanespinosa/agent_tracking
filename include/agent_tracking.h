@@ -7,6 +7,7 @@
 struct Agent_tracking {
     static void set_camera_file(const std::string &);
     static void set_background_path(const std::string &);
+    static void set_occlusions(const std::string &);
     static void new_episode(const New_episode_message &);
     static void end_episode();
     static int register_consumer(easy_tcp::Service &);
