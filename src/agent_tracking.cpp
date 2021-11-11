@@ -1,5 +1,4 @@
 #include <thread>
-#include <utility>
 #include <agent_tracking.h>
 #include <habitat_cv.h>
 #include <layouts.h>
