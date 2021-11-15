@@ -1,19 +1,21 @@
 #pragma once
-#include <thread>
-#include <camera_array.h>
-#include <easy_tcp.h>
-#include <message.h>
+#include <agent_tracking/message.h>
+#include <agent_tracking/service.h>
+#include <agent_tracking/background.h>
+#include <agent_tracking/camera_array.h>
+#include <agent_tracking/client.h>
+#include <agent_tracking/frame_rate.h>
+#include <agent_tracking/layouts.h>
+#include <agent_tracking/time_stamp.h>
 
-struct Agent_tracking {
-    static void set_camera_file(const std::string &);
-    static void set_background_path(const std::string &);
-    static void set_occlusions(const std::string &);
-    static void new_episode(const New_episode_message &);
-    static void end_episode();
-    static int register_consumer(easy_tcp::Service &);
-    static void deregister_consumer(int);
-    static void tracking_process ();
-    static void reset_cameras();
-    static void initialize_background();
-    static void update_puff();
-};
+namespace agent_tracking {
+    void set_camera_file(const std::string &);
+    void set_background_path(const std::string &);
+    void set_occlusions(const std::string &);
+    void new_episode(const New_episode_message &);
+    void end_episode();
+    void tracking_process();
+    void reset_cameras();
+    void initialize_background();
+    void update_puff();
+}

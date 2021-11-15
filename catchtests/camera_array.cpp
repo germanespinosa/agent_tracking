@@ -1,7 +1,7 @@
 #include <catch.h>
 #include <fstream>
 #include <habitat_cv.h>
-#include <layouts.h>
+#include <agent_tracking/layouts.h>
 
 using namespace std;
 using namespace habitat_cv;
