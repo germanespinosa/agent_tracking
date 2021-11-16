@@ -4,6 +4,7 @@
 #include <stdexcept>
 
 using namespace cell_world;
+using namespace std;
 
 namespace agent_tracking {
     bool Client::connect() {
@@ -36,9 +37,28 @@ namespace agent_tracking {
         return wait_for_result("end_episode").body == "ok";
     }
 
-    bool Client::register_consumer() {
-        if (!send_message(Message("register_consumer"))) return false;
-        return wait_for_result("register_consumer").body == "ok";
+    bool Client::register_consumer(auto &callback) {
+        {
+            if (!send_message(cell_world::Message("register_consumer"))) return false;
+            registered_consumer = wait_for_result("register_consumer").body == "ok";
+            consumer = std::thread ([this, &callback]() {
+                while (registered_consumer)
+                    if (contains("step"))
+                        callback(get_message("step").get_body<cell_world::Step>());
+            });
+            return registered_consumer;
+        }
+    }
+
+    bool Client::register_consumer(bool automatic) {
+        if (automatic) {
+            auto lambda = [this](cell_world::Step step) { cout << step << endl;};
+            return register_consumer(lambda);
+        } else {
+            if (!send_message(cell_world::Message("register_consumer"))) return false;
+            registered_consumer = wait_for_result("register_consumer").body == "ok";
+            return registered_consumer;
+        }
     }
 
     bool Client::reset_cameras() {
@@ -70,6 +90,10 @@ namespace agent_tracking {
     }
 
     Client::Client() {
+
+    }
+
+    void Client::new_step(cell_world::Step) {
 
     }
 
