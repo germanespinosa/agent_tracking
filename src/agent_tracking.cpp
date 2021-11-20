@@ -95,7 +95,11 @@ namespace agent_tracking {
     enum Screen_image {
         main,
         difference,
-        leds,
+        led,
+        led0,
+        led1,
+        led2,
+        led3,
         raw,
         mouse,
         cam0,
@@ -160,7 +164,7 @@ namespace agent_tracking {
                 composite_image_rgb.polygon(cell_polygon, color_robot);
                 composite_image_rgb.arrow(robot.location, to_radians(robot.rotation), 50, color_robot);
 
-                Service::send_update(robot);
+                Service::send_update(Message("predator_step",robot));
                 robot_counter = 30;
             } else {
                 if (robot_counter) robot_counter--;
@@ -172,7 +176,7 @@ namespace agent_tracking {
                 mouse.time_stamp = ts.to_seconds();
                 mouse.frame = frame_number;
 
-                Service::send_update(mouse);
+                Service::send_update(Message("prey_step",mouse));
                 composite_image_rgb.circle(mouse.location, 5, {255, 0, 0}, true);
                 auto cell_polygon = composite.get_polygon(mouse.coordinates);
                 composite_image_rgb.polygon(cell_polygon, {255, 0, 0});
@@ -199,15 +203,30 @@ namespace agent_tracking {
             switch (screen_image) {
                 case Screen_image::main :
                     for (auto &occlusion: occlusions) {
-                        composite_image_rgb.circle(occlusion.get().location, 3, {0, 128, 255}, true);
+                        composite_image_rgb.circle(occlusion.get().location, 10, {0, 255, 0}, true);
                     }
                     screen_frame = screen_layout.get_frame(composite_image_rgb, "main");
                     break;
                 case Screen_image::difference :
                     screen_frame = screen_layout.get_frame(diff, "difference");
                     break;
-                case Screen_image::leds :
-                    screen_frame = screen_layout.get_frame(Image(cv::Mat(composite_image_gray > robot_threshold),""), "LEDs");
+                case Screen_image::led :
+                    if (robot_best_cam == -1)
+                        screen_frame = screen_layout.get_frame(Image(cv::Mat(composite_image_gray > robot_threshold),""), "LEDs");
+                    else
+                        screen_frame = screen_layout.get_frame(Image(cv::Mat(composite.warped[robot_best_cam] > robot_threshold),""), "LEDs");
+                    break;
+                case Screen_image::led0 :
+                    screen_frame = screen_layout.get_frame(Image(cv::Mat(composite.warped[0] > robot_threshold),""), "LED0");
+                    break;
+                case Screen_image::led1 :
+                    screen_frame = screen_layout.get_frame(Image(cv::Mat(composite.warped[1] > robot_threshold),""), "LED1");
+                    break;
+                case Screen_image::led2 :
+                    screen_frame = screen_layout.get_frame(Image(cv::Mat(composite.warped[2] > robot_threshold),""), "LED2");
+                    break;
+                case Screen_image::led3 :
+                    screen_frame = screen_layout.get_frame(Image(cv::Mat(composite.warped[3] > robot_threshold),""), "LED3");
                     break;
                 case Screen_image::mouse :
                     screen_frame = screen_layout.get_frame(mouse_frame, "mouse");
@@ -235,6 +254,9 @@ namespace agent_tracking {
                 case 'Q':
                     tracking_running = false;
                     break;
+                case 'M':
+                    screen_image = main;
+                    break;
                 case 'R':
                     reset_cameras();
                     break;
@@ -256,6 +278,13 @@ namespace agent_tracking {
                         screen_image = static_cast<Screen_image>(screen_image + 1);
                     cout << "change_screen_output to " << screen_image << endl;
                     break;
+                case ' ':
+                    if (screen_image == Screen_image::main)
+                        screen_image = Screen_image::cam3;
+                    else
+                        screen_image = static_cast<Screen_image>(screen_image - 1);
+                    cout << "change_screen_output to " << screen_image << endl;
+                    break;
             }
 
             if (mouse.location == NOLOCATION) continue; // starts recording when mouse crosses the door
@@ -275,7 +304,6 @@ namespace agent_tracking {
     void new_episode(const New_episode_message &nem) {
         if (main_video.is_open()) end_episode();
         cout << "Video destination folder: " + nem.destination_folder << endl;
-        set_occlusions(nem.occlusions);
         main_layout.new_episode(nem.subject, nem.experiment, nem.episode, nem.occlusions);
         main_video.new_video(nem.destination_folder + "/main.mp4");
         raw_video.new_video(nem.destination_folder + "/raw.mp4");

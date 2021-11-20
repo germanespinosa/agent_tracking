@@ -10,8 +10,13 @@ namespace agent_tracking {
 
 
     int Service::get_port() {
-        string port_str(std::getenv("CELLWORLD_ROBOT_CONTROLLER_PORT") ? std::getenv("CELLWORLD_ROBOT_CONTROLLER_PORT") : "4000");
+        string port_str(std::getenv("CELLWORLD_AGENT_TRACKING_PORT") ? std::getenv("CELLWORLD_AGENT_TRACKING_PORT") : "4000");
         return atoi(port_str.c_str());
+    }
+
+    void Service::new_experiment(const std::string &occlusions) {
+        send_update(Message("new_experiment", New_experiment_message{occlusions}));
+        send_message(Message("new_experiment_result", "ok"));
     }
 
     void Service::new_episode(New_episode_message nem) {
@@ -59,10 +64,10 @@ namespace agent_tracking {
         send_message(Message("update_puff_result", "ok"));
     }
 
-    void Service::set_occlusions(const string &occlusions) {
+    void Service::show_occlusions(const string &occlusions) {
         cout << "set_occlusions" << endl;
         agent_tracking::set_occlusions(occlusions);
-        send_message(Message("set_occlusions_result", "ok"));
+        send_message(Message("show_occlusions_result", "ok"));
     }
 
     void Service::unrouted_message(const cell_world::Message &) {
@@ -79,13 +84,13 @@ namespace agent_tracking {
         }
     }
 
-    void Service::send_update(const Step &step) {
+    void Service::send_update(const cell_world::Message &message) {
+        auto message_str = message.to_json();
         for (auto &consumer: consumers) {
-            string message = Message("step", step.to_json()).to_json();
             try {
-                consumer.get().send_data(message.c_str(), message.size() + 1);
+                consumer.get().send_data(message_str.c_str(), (int)message_str.size() + 1);
             } catch (...) {
-
+                consumer.get().remove_consumer();
             }
         }
     }
@@ -102,4 +107,11 @@ namespace agent_tracking {
         consumers = new_consumers;
         consumers_id = new_consumers_id;
     }
+
+    void Service::hide_occlusions() {
+        cout << "set_occlusions" << endl;
+        agent_tracking::set_occlusions("00_00");
+        send_message(Message("hide_occlusions_result", "ok"));
+    }
+
 }

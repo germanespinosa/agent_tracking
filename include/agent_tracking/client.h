@@ -9,10 +9,8 @@ namespace agent_tracking {
         bool connect(const std::string &ip, int port);
         bool new_episode( const std::string &experiment, int episode, const std::string &subject, const std::string &occlusions, const std::string &destination_folder);
         bool end_episode();
-        bool register_consumer(auto &callback);
-        bool register_consumer(bool automatic = false);
+        bool register_consumer();
         bool unregister_consumer();
-        virtual void new_step(cell_world::Step);
         bool reset_cameras();
         bool update_background();
         bool update_puff();
