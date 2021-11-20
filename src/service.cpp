@@ -15,6 +15,7 @@ namespace agent_tracking {
     }
 
     void Service::new_experiment(const std::string &occlusions) {
+        cout << "new_experiment" << endl;
         send_update(Message("new_experiment", New_experiment_message{occlusions}));
         send_message(Message("new_experiment_result", "ok"));
     }
@@ -26,7 +27,7 @@ namespace agent_tracking {
     }
 
     void Service::end_episode() {
-        cout << "new_episode" << endl;
+        cout << "end_episode" << endl;
         agent_tracking::end_episode();
         send_message(Message("end_episode_result", "ok"));
     }
@@ -65,7 +66,7 @@ namespace agent_tracking {
     }
 
     void Service::show_occlusions(const string &occlusions) {
-        cout << "set_occlusions" << endl;
+        cout << "show_occlusions" << endl;
         agent_tracking::set_occlusions(occlusions);
         send_message(Message("show_occlusions_result", "ok"));
     }
@@ -75,10 +76,11 @@ namespace agent_tracking {
     }
 
     void Service::on_connect() {
-        cout << "new connection" << endl;
+        cout << "on_connect" << endl;
     }
 
     void Service::on_disconnect() {
+        cout << "on_disconnect" << endl;
         if (consumer_id >= 0) {
             remove_consumer();
         }
@@ -109,7 +111,7 @@ namespace agent_tracking {
     }
 
     void Service::hide_occlusions() {
-        cout << "set_occlusions" << endl;
+        cout << "hide_occlusions" << endl;
         agent_tracking::set_occlusions("00_00");
         send_message(Message("hide_occlusions_result", "ok"));
     }
