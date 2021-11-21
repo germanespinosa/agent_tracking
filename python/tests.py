@@ -5,7 +5,7 @@ cellworld_py_setup.install(version="1.1", force=True)
 from agent_tracking import Agent_tracking, New_episode_message
 from time import sleep
 import os
-from cellworld_py import Coordinates
+from cellworld_py import *
 
 a = Agent_tracking()
 
@@ -23,5 +23,3 @@ sleep(3)
 a.update_backgrounds()
 sleep(3)
 a.reset_cameras()
-
-
