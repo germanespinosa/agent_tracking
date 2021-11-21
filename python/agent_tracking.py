@@ -75,9 +75,9 @@ class Agent_tracking:
         self.__run__("unregister_consumer", new_connection=False)
         self.registered = False
 
-    def new_episode(self, subject, experiment, episode, occlusions, destination_folder, register=True):
+    def new_episode(self, subject, experiment, episode, occlusions, destination_folder, register=True, call_back=None):
         if register:
-            self.register_consumer()
+            self.register_consumer(call_back)
         if self.registered:
             body = New_episode_message(subject, experiment, episode, occlusions, destination_folder)
             self.client.router.add_route("step$", self.__new_step__)
