@@ -2,7 +2,7 @@ import os
 import json
 from cellworld_py import *
 
-class New_episode_message(Json_object):
+class New_episode_parameters(Json_object):
     def __init__(self, subject="", experiment="", episode=0, occlusions="", destination_folder=""):
         check_type(subject, str, "wrong type for subject")
         check_type(experiment, str, "wrong type for experiment")
@@ -79,8 +79,8 @@ class Agent_tracking:
         if register:
             self.register_consumer(call_back)
         if self.registered:
-            body = New_episode_message(subject, experiment, episode, occlusions, destination_folder)
-            self.client.router.add_route("step$", self.__new_step__)
+            body = New_episode_parameters(subject, experiment, episode, occlusions, destination_folder)
+            self.client.router.add_route("step$", self.__new_step__, Step)
             if self.__run__("new_episode", body, new_connection=False, leave_open=True):
                 self.episode_in_progress = True
         else:
