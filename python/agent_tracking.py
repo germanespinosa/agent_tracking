@@ -37,9 +37,8 @@ class Agent_tracking:
         self.client = None
         self.episode_in_progress = True
 
-    def __new_step__(self, message):
+    def __new_step__(self, step):
         try:
-            step = message.get_body(Step)
             if self.call_back:
                 self.call_back(step)
         finally:
