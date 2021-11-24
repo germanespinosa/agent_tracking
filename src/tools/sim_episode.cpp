@@ -5,7 +5,7 @@
 using namespace std;
 using namespace agent_tracking;
 
-int main(int argc, char **argv) {
+int main() {
     Time_stamp ts;
     agent_tracking::Client client;
     client.connect();

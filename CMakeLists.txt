@@ -32,8 +32,10 @@ string(APPEND CMAKE_CXX_FLAGS_RELEASE " -O3 ")
 add_library(agent_tracking ${agent_tracking_files})
 
 target_link_libraries(agent_tracking ${OpenCV_LIBS} ${CELLWORLD_LIBRARIES} habitat_cv)
-target_link_libraries(agent_tracking /usr/local/xclib/lib/pxipl_x86_64.a  /usr/local/xclib/lib/xclib_x86_64.a )
-
+if(EXISTS "/usr/local/xclib/lib/pxipl_x86_64.a")
+	add_compile_definitions(XLIBALL_PRESENT "FOUND")
+	target_link_libraries(agent_tracking /usr/local/xclib/lib/pxipl_x86_64.a  /usr/local/xclib/lib/xclib_x86_64.a )
+endif()
 target_include_directories(cellworld
 		SYSTEM INTERFACE
 		$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
