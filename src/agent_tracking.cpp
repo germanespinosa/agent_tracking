@@ -324,7 +324,7 @@ namespace agent_tracking {
         main_video.close();
         mouse_video.close();
         raw_video.close();
-        reset_cameras();
+//reset_cameras();
     }
 
     void update_puff() {
