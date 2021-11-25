@@ -1,5 +1,6 @@
 #pragma once
 #include <chrono>
+
 namespace agent_tracking {
     struct Frame_rate {
         Frame_rate(double filter = .1);

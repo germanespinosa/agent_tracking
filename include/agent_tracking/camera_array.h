@@ -1,5 +1,4 @@
 #pragma once
-#include "opencv2/core.hpp"
 #include <habitat_cv.h>
 
 namespace agent_tracking {
@@ -9,8 +8,6 @@ namespace agent_tracking {
         void capture();
 
         void reset();
-
-        std::vector<cv::Mat> clones();
 
         unsigned int camera_count;
         habitat_cv::Images images;

@@ -3,9 +3,15 @@
 
 namespace agent_tracking {
     struct Time_stamp {
-        Time_stamp();
-        void reset();
+        Time_stamp(): check_point(std::chrono::high_resolution_clock::now()) {};
+        void reset() {
+            check_point = std::chrono::high_resolution_clock::now();
+        }
+        double to_seconds() const{
+            auto time_stamp = std::chrono::high_resolution_clock::now();
+            auto ms = std::chrono::duration<double, std::milli>(time_stamp - check_point).count();
+            return ((double) ms) / 1000;
+        };
         std::chrono::time_point<std::chrono::high_resolution_clock> check_point;
-        double to_seconds();
     };
 }

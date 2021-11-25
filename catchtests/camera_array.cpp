@@ -47,6 +47,7 @@ using namespace cell_world;
 //}
 
 
+#if XLIBALL_PRESENT
 
 TEST_CASE("Layouts"){
     string bg_path = "/maze/agent_tracking/backgrounds/experiment/";
@@ -58,3 +59,5 @@ TEST_CASE("Layouts"){
     cv::imshow("main layout", main_frame);
     cv::waitKey();
 }
+
+#endif

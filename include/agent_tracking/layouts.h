@@ -1,5 +1,6 @@
 #pragma once
 #include <habitat_cv.h>
+
 namespace agent_tracking {
     struct Main_layout : habitat_cv::Layout {
         Main_layout();

@@ -15,10 +15,13 @@ find_package( Habitat_cv REQUIRED)
 ### MAIN LIBRARY SETUP
 ###
 
+set( tracking_service
+	src/service.cpp
+	src/client.cpp )
+
 set( agent_tracking_files
 	src/camera_array.cpp
 	src/frame_rate.cpp
-	src/time_stamp.cpp
 	src/layouts.cpp
 	src/service.cpp
 	src/agent_tracking.cpp
@@ -30,13 +33,19 @@ string(APPEND CMAKE_CXX_FLAGS " -DC_GNU64=400 -DOS_LINUX -no-pie -Wall -Wextra "
 string(APPEND CMAKE_CXX_FLAGS_RELEASE " -O3 ")
 
 add_library(agent_tracking ${agent_tracking_files})
-
 target_link_libraries(agent_tracking ${OpenCV_LIBS} ${CELLWORLD_LIBRARIES} habitat_cv)
+
+add_library(tracking_service ${tracking_service})
+
+target_link_libraries(tracking_service ${CELLWORLD_LIBRARIES})
 
 if(EXISTS "/usr/local/xclib/lib/pxipl_x86_64.a")
 	message("-- xlib found - Adding camera support")
 	add_compile_definitions(XLIBALL_PRESENT "FOUND")
 	target_link_libraries(agent_tracking /usr/local/xclib/lib/pxipl_x86_64.a  /usr/local/xclib/lib/xclib_x86_64.a )
+	target_include_directories(agent_tracking
+			PUBLIC
+			/usr/local/xclib/inc/ )
 else()
 	message("-- xlib not found - compiling scafold")
 endif()
@@ -50,9 +59,10 @@ target_include_directories(agent_tracking
 		PRIVATE
 		include )
 
-target_include_directories(agent_tracking
-		PUBLIC
-		/usr/local/xclib/inc/ )
+target_include_directories(tracking_service
+		PRIVATE
+		include )
+
 
 add_executable(agent_tracker src/tools/agent_tracker.cpp)
 target_link_libraries(agent_tracker agent_tracking)
@@ -72,20 +82,18 @@ find_package(CatchTests CONFIG QUIET)
 
 include(GNUInstallDirs)
 
-install(TARGETS agent_tracking EXPORT Agent_trackingConfig
+install(TARGETS tracking_service EXPORT Tracking_serviceConfig
 		ARCHIVE  DESTINATION ${CMAKE_INSTALL_LIBDIR}
 		LIBRARY  DESTINATION ${CMAKE_INSTALL_LIBDIR}
 		RUNTIME  DESTINATION ${CMAKE_INSTALL_BINDIR})
 
 install(DIRECTORY include/ DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 
-install(EXPORT Agent_trackingConfig
-		DESTINATION ${CMAKE_INSTALL_DATADIR}/cmake/Agent_tracking
+install(EXPORT Tracking_serviceConfig
+		DESTINATION ${CMAKE_INSTALL_DATADIR}/cmake/Tracking_service
 		EXPORT_LINK_INTERFACE_LIBRARIES)
 
-export(TARGETS agent_tracking FILE Agent_trackingConfig.cmake)
-install(CODE "FILE(APPEND ${CMAKE_INSTALL_FULL_DATADIR}/cmake/Agent_tracking/Agent_trackingConfig.cmake \"find_package(Cellworld REQUIRED)\n\") ")
-install(CODE "FILE(APPEND ${CMAKE_INSTALL_FULL_DATADIR}/cmake/Agent_tracking/Agent_trackingConfig.cmake \"find_package(OpenCV REQUIRED)\n\") ")
-install(CODE "FILE(APPEND ${CMAKE_INSTALL_FULL_DATADIR}/cmake/Agent_tracking/Agent_trackingConfig.cmake \"find_package(Habitat_cv REQUIRED)\n\") ")
+export(TARGETS tracking_service FILE Tracking_serviceConfig.cmake)
+install(CODE "FILE(APPEND ${CMAKE_INSTALL_FULL_DATADIR}/cmake/Tracking_service/Tracking_serviceConfig.cmake \"find_package(Cellworld REQUIRED)\n\") ")
 
-install(CODE "FILE(APPEND ${CMAKE_INSTALL_FULL_DATADIR}/cmake/Agent_tracking/Agent_trackingConfig.cmake \"set(AGENT_TRACKING_LIBRARIES ${OpenCV_LIBS} ${CELLWORLD_LIBRARIES} habitat_cv agent_tracking)\n\") ")
+install(CODE "FILE(APPEND ${CMAKE_INSTALL_FULL_DATADIR}/cmake/Tracking_service/Tracking_serviceConfig.cmake \"set(AGENT_TRACKING_LIBRARIES ${CELLWORLD_LIBRARIES} tracking_service)\n\") ")
