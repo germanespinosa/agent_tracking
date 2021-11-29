@@ -114,9 +114,7 @@ namespace agent_tracking {
 
     void Service::unregister_consumer() {
         cout << "unregister_consumer" << endl;
-        consumers_mutex.lock();
         remove_consumer();
-        consumers_mutex.unlock();
         send_message(Message("unregister_consumer_result", "ok"));
     }
 
@@ -135,8 +133,9 @@ namespace agent_tracking {
 
     void remove_connection(easy_tcp::Connection *connection) {
         auto position = std::find(consumers.begin(), consumers.end(), connection);
-        if (position != consumers.end()) // == myVector.end() means the element was not found
+        if (position != consumers.end()) {// == myVector.end() means the element was not found
             consumers.erase(position);
+        }
     }
 
     void Service::remove_consumer() {

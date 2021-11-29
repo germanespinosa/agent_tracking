@@ -1,26 +1,45 @@
-import httpimport
-with httpimport.remote_repo(["cellworld_py_setup"], "https://raw.githubusercontent.com/germanespinosa/cellworld_py/master/"):
-    import cellworld_py_setup
-cellworld_py_setup.install(version="1.1", force=True)
-from agent_tracking import Agent_tracking, New_episode_message
+# import httpimport
+# with httpimport.remote_repo(["cellworld_py_setup"], "https://raw.githubusercontent.com/germanespinosa/cellworld_py/master/"):
+#     import cellworld_py_setup
+# cellworld_py_setup.install(version="1.3", force=True)
 
-from time import sleep
-import os
-from cellworld_py import *
+def show_step(message):
+    print(message)
 
-a = Agent_tracking()
+from agent_tracking import Agent_tracking
+from cellworld_py import Timer
+tracker = Agent_tracking()
+tracker.register_consumer(show_step)
+t = Timer(3)
+while t:
+    pass
+tracker.unregister_consumer()
 
-sleep(3)
-a.show_occlusions("10_05")
-sleep(3)
-a.hide_occlusions()
-sleep(3)
-a.new_experiment("test_experiment")
-sleep(3)
-a.new_episode("MMM4", "TEST", 0, "10_05", os.getcwd())
-sleep(10)
-a.end_episode()
-sleep(3)
-a.update_backgrounds()
-sleep(3)
-a.reset_cameras()
+
+
+
+
+
+# from agent_tracking import Agent_tracking, New_episode_message
+#
+# from time import sleep
+# import os
+# from cellworld_py import *
+#
+# a = Agent_tracking()
+#
+# sleep(3)
+# a.show_occlusions("10_05")
+# sleep(3)
+# a.hide_occlusions()
+# sleep(3)
+# a.new_experiment("test_experiment")
+# sleep(3)
+# a.new_episode("MMM4", "TEST", 0, "10_05", os.getcwd())
+# sleep(10)
+# a.end_episode()
+# sleep(3)
+# a.update_backgrounds()
+# sleep(3)
+# a.reset_cameras()
+

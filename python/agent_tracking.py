@@ -1,8 +1,8 @@
 import os
-import json
 from cellworld_py import *
 
 class New_episode_parameters(Json_object):
+
     def __init__(self, subject="", experiment="", episode=0, occlusions="", destination_folder=""):
         check_type(subject, str, "wrong type for subject")
         check_type(experiment, str, "wrong type for experiment")
@@ -19,7 +19,7 @@ class New_episode_parameters(Json_object):
 class Agent_tracking:
     @staticmethod
     def port():
-        default_port = 4000
+        default_port = 4510
         if os.environ.get("CELLWORLD_AGENT_TRACKING_PORT"):
             try:
                 return int(os.environ.get("CELLWORLD_AGENT_TRACKING_PORT"))
@@ -47,17 +47,16 @@ class Agent_tracking:
     def __run__(self, cmd, parameters="", new_connection=True, leave_open=False):
         try:
             if new_connection:
-                self.client = Message_client(self.ip, self.port)
-                self.client.start()
+                self.client = Message_client()
+                self.client.connect(self.ip, self.port)
             self.client.connection.send(Message(cmd, parameters))
-            t = Time_out(5)
-            while not self.client.pending_messages.contains(cmd + "_result") and t:
+            t = Timer(5)
+            while not self.client.messages.contains(cmd + "_result") and t:
                 pass
             if not leave_open:
-                self.client.stop()
-                self.client.connection.close()
+                self.client.disconnect()
                 self.client = None
-            if self.client.pending_messages.get_message(cmd + "_result").body == "ok":
+            if self.client.messages.get_message(cmd + "_result").body == "ok":
                 return True
             else:
                 return False
@@ -67,19 +66,23 @@ class Agent_tracking:
     def register_consumer(self, call_back):
         check_types(call_back, [types.FunctionType, types.MethodType], "incorrect type for call_back")
         self.call_back = call_back
-        self.__run__("register_consumer", leave_open=True)
-        self.registered = True
+        self.registered = self.__run__("register_consumer", leave_open=True)
+        if self.registered:
+            self.client.router.add_route("step$", self.__new_step__, Step)
+        return self.registered
 
     def unregister_consumer(self):
-        self.__run__("unregister_consumer", new_connection=False)
-        self.registered = False
+        if self.__run__("unregister_consumer", new_connection=False):
+            self.registered = False
+            return True
+        else:
+            return False
 
     def new_episode(self, subject, experiment, episode, occlusions, destination_folder, register=True, call_back=None):
         if register:
             self.register_consumer(call_back)
         if self.registered:
             body = New_episode_parameters(subject, experiment, episode, occlusions, destination_folder)
-            self.client.router.add_route("step$", self.__new_step__, Step)
             if self.__run__("new_episode", body, new_connection=False, leave_open=True):
                 self.episode_in_progress = True
         else:
