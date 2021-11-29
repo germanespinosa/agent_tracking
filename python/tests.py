@@ -1,13 +1,13 @@
-# import httpimport
-# with httpimport.remote_repo(["cellworld_py_setup"], "https://raw.githubusercontent.com/germanespinosa/cellworld_py/master/"):
-#     import cellworld_py_setup
-# cellworld_py_setup.install(version="1.3", force=True)
+
+from agent_tracking_py import Agent_tracking
+
+from cellworld_py import Timer
+
 
 def show_step(message):
     print(message)
 
-from agent_tracking import Agent_tracking
-from cellworld_py import Timer
+
 tracker = Agent_tracking()
 tracker.register_consumer(show_step)
 t = Timer(3)
