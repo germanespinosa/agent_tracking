@@ -8,6 +8,7 @@ import requests
 import os
 
 def download(url, path=None):
+    print (url)
     web_get = requests.get(url)
     if not path:
         path = url.split("/")[-1]
