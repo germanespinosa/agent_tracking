@@ -1,23 +1,19 @@
 #include <agent_tracking/client.h>
-#include <agent_tracking/message.h>
-#include <agent_tracking/time_stamp.h>
+#include <agent_tracking/service.h>
 #include <stdexcept>
 
 using namespace cell_world;
 using namespace std;
+using namespace agent_tracking;
 
 namespace agent_tracking {
+
     bool Client::connect() {
         return connect("127.0.0.1");
     }
 
     bool Client::connect(const std::string &ip) {
-//        return connect(ip, Service::get_port());
-        return connect(ip, 4000);
-    }
-
-    bool Client::connect(const std::string &ip, int port) {
-        return Message_client::connect(ip, port);
+        return Message_client::connect(ip, Service::get_port());
     }
 
     bool Client::new_episode(const std::string &experiment, int episode, const std::string &subject,
@@ -64,14 +60,30 @@ namespace agent_tracking {
     }
 
     cell_world::Message Client::wait_for_result(const std::string &operation, double time_out) {
-        Time_stamp ts;
+        Timer ts(time_out);
         std::string header = operation + "_result";
-        ts.reset();
-        while (!contains(header) && (time_out == 0 || ts.to_seconds() < time_out));
+        while (!contains(header) && !ts.time_out());
         return get_message(header);
     }
 
     Client::Client() {
 
     }
+
+    cell_world::Step &Client::get_current_state(const string &agent_name) {
+        return current_states[agent_name];
+    }
+
+    void Client::process_step(const cell_world::Step &step) {
+        current_states[step.agent_name] = step;
+    }
+
+    bool Client::contains_agent_state(const string &agent_name) {
+        return current_states.count(agent_name) != 0;
+    }
+
+    Client::~Client() {
+
+    }
+
 }

@@ -1,12 +1,13 @@
 #include <agent_tracking/client.h>
-#include <agent_tracking/time_stamp.h>
 #include <cell_world.h>
 
+using namespace cell_world;
 using namespace std;
 using namespace agent_tracking;
 
+
 int main() {
-    Time_stamp ts;
+    Timer ts;
     agent_tracking::Client client;
     client.connect();
     cout << "client connected" << endl;

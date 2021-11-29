@@ -1,13 +1,16 @@
 #include <agent_tracking/service.h>
-#include <agent_tracking/message.h>
+#include <mutex>
+#if XLIBALL_PRESENT
+#include <agent_tracking.h>
+#endif
 
 using namespace std;
 using namespace cell_world;
 
 namespace agent_tracking {
 
-    vector<std::reference_wrapper<Service>> consumers;
-    vector<int> consumers_id;
+    vector<easy_tcp::Connection *> consumers;
+    mutex consumers_mutex;
 
 
 #if XLIBALL_PRESENT
@@ -102,17 +105,18 @@ namespace agent_tracking {
 #endif
 
     void Service::register_consumer() {
-        static unsigned int consumers_count = 0;
         cout << "register_consumer" << endl;
-        consumers.emplace_back(*this);
-        consumers_id.push_back(consumers_count);
-        consumer_id =  consumers_count++;
+        consumers_mutex.lock();
+        consumers.emplace_back(connection);
+        consumers_mutex.unlock();
         send_message(Message("register_consumer_result", "ok"));
     }
 
     void Service::unregister_consumer() {
         cout << "unregister_consumer" << endl;
+        consumers_mutex.lock();
         remove_consumer();
+        consumers_mutex.unlock();
         send_message(Message("unregister_consumer_result", "ok"));
     }
 
@@ -126,40 +130,38 @@ namespace agent_tracking {
 
     void Service::on_disconnect() {
         cout << "on_disconnect" << endl;
-        if (consumer_id >= 0) {
-            remove_consumer();
-        }
+        remove_consumer();
+    }
+
+    void remove_connection(easy_tcp::Connection *connection) {
+        auto position = std::find(consumers.begin(), consumers.end(), connection);
+        if (position != consumers.end()) // == myVector.end() means the element was not found
+            consumers.erase(position);
     }
 
     void Service::remove_consumer() {
-        vector<std::reference_wrapper<Service>> new_consumers;
-        vector<int> new_consumers_id;
-        for (unsigned int i = 0; i < consumers_id.size(); i++) {
-            if (consumers_id[i] != consumer_id) {
-                new_consumers.emplace_back(consumers[i]);
-                new_consumers_id.emplace_back(consumers_id[i]);
-            }
-        }
-        consumers = new_consumers;
-        consumers_id = new_consumers_id;
+        consumers_mutex.lock();
+        remove_connection(connection);
+        consumers_mutex.unlock();
     }
 
     int Service::get_port() {
-        string port_str(std::getenv("CELLWORLD_AGENT_TRACKING_PORT") ? std::getenv("CELLWORLD_AGENT_TRACKING_PORT") : "4000");
+        string port_str(std::getenv("AGENT_TRACKING_PORT") ? std::getenv("AGENT_TRACKING_PORT") : "4510");
         return atoi(port_str.c_str());
     }
 
-
     void Service::send_update(const cell_world::Message &message) {
         auto message_str = message.to_json();
+        vector<easy_tcp::Connection *> to_remove;
+        consumers_mutex.lock();
         for (auto &consumer: consumers) {
             try {
-                consumer.get().send_data(message_str.c_str(), (int)message_str.size() + 1);
+                consumer->send_data(message_str.c_str(), (int)message_str.size() + 1);
             } catch (...) {
-                consumer.get().remove_consumer();
+                to_remove.push_back(consumer); // if fails I mark it for removal
             }
         }
+        for (auto consumer:to_remove) remove_connection(consumer); // remove failed
+        consumers_mutex.unlock();
     }
-
-
 }

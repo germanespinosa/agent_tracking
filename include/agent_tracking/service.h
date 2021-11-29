@@ -1,9 +1,7 @@
 #pragma once
 #include <cell_world.h>
 #include <agent_tracking/message.h>
-#if XLIBALL_PRESENT
-#include <agent_tracking.h>
-#endif
+
 
 namespace agent_tracking {
     struct Service : cell_world::Message_service {
@@ -47,7 +45,6 @@ namespace agent_tracking {
         //static
         static int get_port();
         static void send_update(const cell_world::Message &);
-        int consumer_id = -1;
     private:
         void remove_consumer();
     };
