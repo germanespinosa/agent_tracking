@@ -42,10 +42,10 @@ def install(version="", force=False):
         version_v = "_" + version
 
     try:
-        download("https://raw.githubusercontent.com/germanespinosa/agent_tracking/master/python/build/agent_tracking_" + version_v + ".zip", "agent_tracking_.zip")
+        download("https://raw.githubusercontent.com/germanespinosa/agent_tracking/master/python/build/agent_tracking_py_" + version_v + ".zip", "agent_tracking_py.zip")
     except:
-        raise ValueError('agent_tracking_ version ' + version + 'installation failed')
+        raise ValueError('agent_tracking_py version ' + version + 'installation failed')
 
-    extract("agent_tracking_.zip")
-    os.remove("agent_tracking_.zip")
-    print('agent_tracking_ version ' + version + ' installed')
+    extract("agent_tracking_py.zip")
+    os.remove("agent_tracking_py.zip")
+    print('agent_tracking_py version ' + version + ' installed')
