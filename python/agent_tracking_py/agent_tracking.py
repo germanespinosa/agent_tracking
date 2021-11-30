@@ -14,7 +14,6 @@ class New_episode_parameters(Json_object):
         self.episode = int(episode)
         self.occlusions = str(occlusions)
         self.destination_folder = str(destination_folder)
-        self.current_states = dict()
 
 
 class Agent_tracking:
@@ -37,6 +36,7 @@ class Agent_tracking:
         self.call_back = None
         self.client = None
         self.episode_in_progress = True
+        self.current_states = dict()
 
     def contains_agent_state(self, agent_name):
         return agent_name in self.current_states
