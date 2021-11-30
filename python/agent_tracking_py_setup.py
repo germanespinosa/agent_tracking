@@ -1,3 +1,5 @@
+import random
+
 import httpimport
 with httpimport.remote_repo(["cellworld_py_setup"], "https://raw.githubusercontent.com/germanespinosa/cellworld_py/master/"):
     import cellworld_py_setup
@@ -43,7 +45,7 @@ def install(version="", force=False):
         version_v = "_" + version
 
     try:
-        download("https://raw.githubusercontent.com/germanespinosa/agent_tracking/master/python/build/agent_tracking_py" + version_v + ".zip", "agent_tracking_py.zip")
+        download("https://raw.githubusercontent.com/germanespinosa/agent_tracking/master/python/build/agent_tracking_py" + version_v + ".zip?rnd=" + str(random.Random()), "agent_tracking_py.zip")
     except:
         raise ValueError('agent_tracking_py version ' + version + 'installation failed')
 
