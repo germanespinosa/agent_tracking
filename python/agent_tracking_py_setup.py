@@ -1,16 +1,9 @@
 import random
-
-import httpimport
-with httpimport.remote_repo(["cellworld_py_setup"], "https://raw.githubusercontent.com/germanespinosa/cellworld_py/master/"):
-    import cellworld_py_setup
-cellworld_py_setup.install(version="1.3")
-
 import zipfile
 import requests
 import os
 
 def download(url, path=None):
-    print (url)
     web_get = requests.get(url)
     if not path:
         path = url.split("/")[-1]
