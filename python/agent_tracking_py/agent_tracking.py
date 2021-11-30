@@ -71,7 +71,7 @@ class Agent_tracking:
         except:
             return False
 
-    def register_consumer(self, call_back):
+    def register_consumer(self, call_back=None):
         check_types(call_back, [types.FunctionType, types.MethodType], "incorrect type for call_back")
         self.call_back = call_back
         self.registered = self.__run__("register_consumer", leave_open=True)
