@@ -7,7 +7,16 @@ project(agent_tracking
 		DESCRIPTION "Agent cell world simulation framework"
 		LANGUAGES CXX)
 
-find_package( Cellworld REQUIRED )
+### download and install dependency library
+string(TIMESTAMP v)
+file(DOWNLOAD
+		https://raw.githubusercontent.com/germanespinosa/dependencies/main/dependencies.cmake?${v}
+		${CMAKE_CURRENT_BINARY_DIR}/dependencies.cmake)
+
+include(${CMAKE_CURRENT_BINARY_DIR}/dependencies.cmake)
+###
+
+install_dependency(https://github.com/germanespinosa/cellworld Cellworld)
 
 if(EXISTS "/usr/local/xclib/lib/pxipl_x86_64.a")
 	add_compile_definitions(XLIBALL_PRESENT "FOUND")
@@ -26,27 +35,23 @@ set( agent_tracking_files
 	src/service.cpp
 	src/client.cpp )
 
-string(APPEND CMAKE_CXX_FLAGS " -DC_GNU64=400 -DOS_LINUX -no-pie -Wall -Wextra ")
+string(APPEND CMAKE_CXX_FLAGS " -DC_GNU64=400 -DOS_LINUX -no-pie -Wall -Wextra -pthread ")
 string(APPEND CMAKE_CXX_FLAGS_RELEASE " -O3 ")
 
 add_library(agent_tracking ${agent_tracking_files})
-target_link_libraries(agent_tracking ${CELLWORLD_LIBRARIES} )
+target_link_libraries(agent_tracking cellworld )
 
 target_include_directories(cellworld
 		SYSTEM INTERFACE
 		$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
 		$<INSTALL_INTERFACE:include>)
 
-target_include_directories(agent_tracking
-		PRIVATE
-		include )
+dependency_include(include)
 
 if(EXISTS "/usr/local/xclib/lib/pxipl_x86_64.a")
 	target_link_libraries(agent_tracking /usr/local/xclib/lib/pxipl_x86_64.a  /usr/local/xclib/lib/xclib_x86_64.a )
 
-	target_include_directories(agent_tracking
-			PUBLIC
-			/usr/local/xclib/inc/ )
+	dependency_include(/usr/local/xclib/inc/)
 
 	set ( agent_tracker_files
 			src/camera_array.cpp
@@ -60,14 +65,11 @@ if(EXISTS "/usr/local/xclib/lib/pxipl_x86_64.a")
 	target_link_libraries(agent_tracker agent_tracking habitat_cv)
 endif()
 
-add_executable(sim src/tools/sim_episode.cpp)
-target_link_libraries(sim agent_tracking)
-
-
 ###
 ### TESTS
 ###
-find_package(CatchTests CONFIG QUIET)
+install_dependency(https://github.com/germanespinosa/catch CatchTests)
+test_library(agent_tracking)
 
 
 ###
