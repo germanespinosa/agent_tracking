@@ -111,7 +111,6 @@ class Agent_tracking:
         else:
             return True
 
-
     def reset_cameras(self):
         return self.__run__("reset_cameras")
 
@@ -126,4 +125,23 @@ class Agent_tracking:
 
     def hide_occlusions(self):
         return self.__run__("hide_occlusions")
+
+
+class Filtered_client:
+
+    def __init__(self, complementary_filter=0, outlier_distance=0, outlier_threshold=0):
+        self.complementary_filter = complementary_filter
+        self.outlier_distance = outlier_distance
+        self.outlier_threshold = outlier_threshold
+        self.outlier_count = -1
+
+    def filtered_locations(self, previous_location, current_reading):
+        new_location = previous_location * self.complementary_filter + current_reading * (1 - self.complementary_filter)
+        dist = previous_location.dist(new_location)
+        if dist < self.outlier_distance or self.outlier_count == -1 or self.outlier_count >= self.outlier_threshold:
+            self.outlier_count = 0
+            return new_location
+        return previous_location
+
+
 

@@ -86,4 +86,25 @@ namespace agent_tracking {
 
     }
 
+    void Filtered_client::process_step(const cell_world::Step &step) {
+        if (agent_filters.count(step.agent_name))
+            agent_filters[step.agent_name] = filter_template;
+
+        auto filtered_step = step;
+        filtered_step.location = agent_filters[step.agent_name].filtered_location(current_states[step.agent_name].location, step.location);
+        current_states[step.agent_name] = filtered_step;
+    }
+
+    Filtered_client::Filtered_client(const Filter &filter_template) : filter_template(filter_template) {
+    }
+
+    cell_world::Location Filter::filtered_location(const cell_world::Location &previous_location, const cell_world::Location &current_reading) {
+        Location new_location = previous_location * complementary_filter + current_reading * (1 - complementary_filter);
+        auto dist = previous_location.dist(new_location);
+        if (dist < outlier_distance || outlier_count == -1 || outlier_count > outlier_threshold) {
+            outlier_count = 0;
+            return new_location;
+        }
+        return previous_location;
+    }
 }
