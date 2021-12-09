@@ -101,7 +101,7 @@ namespace agent_tracking {
     cell_world::Location Filter::filtered_location(const cell_world::Location &previous_location, const cell_world::Location &current_reading) {
         Location new_location = previous_location * complementary_filter + current_reading * (1 - complementary_filter);
         auto dist = previous_location.dist(new_location);
-        if (dist < outlier_distance || outlier_count == -1 || outlier_count > outlier_threshold) {
+        if (dist < outlier_distance || outlier_count == -1 || outlier_count > (int)outlier_threshold) {
             outlier_count = 0;
             return new_location;
         }
