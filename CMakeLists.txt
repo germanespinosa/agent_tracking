@@ -7,14 +7,7 @@ project(agent_tracking
 		DESCRIPTION "Agent cell world simulation framework"
 		LANGUAGES CXX)
 
-### download and install dependency library
-string(TIMESTAMP v)
-file(DOWNLOAD
-		https://raw.githubusercontent.com/germanespinosa/dependencies/main/dependencies.cmake?${v}
-		${CMAKE_CURRENT_BINARY_DIR}/dependencies.cmake)
-
-include(${CMAKE_CURRENT_BINARY_DIR}/dependencies.cmake)
-###
+find_package(Dependencies)
 
 install_dependency(https://github.com/germanespinosa/cellworld Cellworld)
 
