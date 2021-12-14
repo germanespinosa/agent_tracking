@@ -1,3 +1,5 @@
+from dependencies import install_dependency
+install_dependency("https://github.com/germanespinosa/cellworld_py/raw/master/python-build/cellworld_py.0.0.001.zip")
 
 from agent_tracking_py import Agent_tracking
 

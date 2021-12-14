@@ -1,4 +1,8 @@
 import os
+from dependencies import install_dependency
+
+install_dependency("https://github.com/germanespinosa/cellworld_py/raw/master/python-build/cellworld_py.0.0.001.zip")
+
 from cellworld_py import *
 
 class New_episode_parameters(Json_object):
