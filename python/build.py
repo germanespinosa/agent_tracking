@@ -1,35 +1,13 @@
-import subprocess
-import sys
-from zipfile import ZipFile
-import glob
+from easy_pack import EasyPackModule
+from os import path
 
-lib_name = "agent_tracking_py"
-
-version = ""
-if len(sys.argv) > 1:
-    version = "_" + sys.argv[1]
-
-print("creating new version")
-with open("./" + lib_name + "/version.py", "w") as v:
-    v.write("def version():\n\treturn '" + sys.argv[1] + "'\n")
-print("done!")
-
-print("building library")
-lib_file = 'build/' + lib_name + version + '.zip'
-zipObj = ZipFile(lib_file, 'w')
-g = glob.glob("./" + lib_name + "/*.py")
-for f in g:
-    zipObj.write(f)
-
-zipObj.close()
-print("done!")
-
-print("uploading library" )
-p = subprocess.Popen(["bash","-c", "git add " + lib_file + "; git commit " + lib_file + " -m \"build version " + version + "\" ;git push; echo FINISHED"],
-                     stdout=subprocess.PIPE,
-                     stderr=subprocess.PIPE)
-o, e = p.communicate()
-
-while b"FINISHED" not in o:
-    pass
-print("done!")
+module = EasyPackModule.read('.')
+if not path.exists('setup/setup.py') or path.getctime('__info__.py') > path.getctime('setup/setup.py'):
+    print('package info file has changed, rebuilding setup')
+    module.create_setup_files('../setup')
+if module.build_module('python-build'):
+    print('build succeded')
+    print('use twine upload --repository-url [pypi-repository-url] dist/* to upload the package')
+    module.save('.')
+else:
+    print('build failed')
