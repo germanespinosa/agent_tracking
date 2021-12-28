@@ -11,15 +11,6 @@ find_package(Dependencies)
 
 install_dependency(https://github.com/germanespinosa/cellworld Cellworld)
 
-if(EXISTS "/usr/local/xclib/lib/pxipl_x86_64.a")
-	add_compile_definitions(XLIBALL_PRESENT "FOUND")
-	message("-- xlib found - Adding camera support")
-	find_package( OpenCV 4.0.1 REQUIRED )
-	find_package( Habitat_cv REQUIRED)
-else()
-	message("-- xlib not found - compiling client only")
-endif()
-
 ###
 ### MAIN LIBRARY SETUP
 ###
@@ -34,19 +25,17 @@ string(APPEND CMAKE_CXX_FLAGS_RELEASE " -O3 ")
 add_library(agent_tracking ${agent_tracking_files})
 target_link_libraries(agent_tracking cellworld )
 
-target_include_directories(cellworld
-		SYSTEM INTERFACE
-		$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-		$<INSTALL_INTERFACE:include>)
-
 dependency_include(include)
-
-if(EXISTS "/usr/local/xclib/lib/pxipl_x86_64.a")
-	target_link_libraries(agent_tracking /usr/local/xclib/lib/pxipl_x86_64.a  /usr/local/xclib/lib/xclib_x86_64.a )
-
+if (EXISTS "/usr/local/xclib/lib/pxipl_x86_64.a")
+	message (STATUS "adding agent_tracker")
+	add_compile_definitions(XLIBALL_PRESENT "FOUND")
+	add_dependency_package (OpenCV)
+	install_dependency(https://github.com/germanespinosa/habitat_cv Habitat_cv)
+	target_link_libraries(agent_tracking /usr/local/xclib/lib/pxipl_x86_64.a  /usr/local/xclib/lib/xclib_x86_64.a m -pthread )
+	target_link_libraries(agent_tracking ${OpenCV_LIBS} habitat_cv)
 	dependency_include(/usr/local/xclib/inc/)
-
 	set ( agent_tracker_files
+			src/tools/agent_tracker.cpp
 			src/camera_array.cpp
 			src/frame_rate.cpp
 			src/layouts.cpp
@@ -55,14 +44,16 @@ if(EXISTS "/usr/local/xclib/lib/pxipl_x86_64.a")
 			src/background.cpp )
 
 	add_executable(agent_tracker ${agent_tracker_files})
-	target_link_libraries(agent_tracker agent_tracking habitat_cv)
+	target_link_libraries(agent_tracker agent_tracking)
+else()
+	message(STATUS "Building service only")
 endif()
 
 ###
 ### TESTS
 ###
-install_dependency(https://github.com/germanespinosa/catch CatchTests)
-test_library(agent_tracking)
+#install_dependency(https://github.com/germanespinosa/catch CatchTests)
+#test_library(agent_tracking)
 
 
 ###

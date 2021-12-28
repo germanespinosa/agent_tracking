@@ -1,6 +1,7 @@
 #include <thread>
 #include <agent_tracking.h>
 #include <habitat_cv.h>
+#include <cell_world/timer.h>
 
 #define SAFETY_MARGIN 75
 #define PUFF_DURATION 15
@@ -12,7 +13,7 @@ using namespace std;
 
 namespace agent_tracking {
 
-    Time_stamp ts;
+    Timer ts;
     std::atomic<bool> tracking_running = false;
     Camera_array *cameras = nullptr;
 
