@@ -27,7 +27,8 @@ add_library(agent_tracking ${agent_tracking_files})
 
 target_link_libraries(agent_tracking
 		LINK_PUBLIC
-		cellworld )
+		cellworld
+		tcp_messages )
 
 dependency_include(include)
 
