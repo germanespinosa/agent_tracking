@@ -24,9 +24,13 @@ string(APPEND CMAKE_CXX_FLAGS " -DC_GNU64=400 -DOS_LINUX -no-pie -Wall -Wextra -
 string(APPEND CMAKE_CXX_FLAGS_RELEASE " -O3 ")
 
 add_library(agent_tracking ${agent_tracking_files})
-target_link_libraries(agent_tracking cellworld )
+
+target_link_libraries(agent_tracking
+		LINK_PUBLIC
+		cellworld )
 
 dependency_include(include)
+
 if (EXISTS "/usr/local/xclib/lib/pxipl_x86_64.a")
 	message (STATUS "adding agent_tracker")
 	add_compile_definitions(XLIBALL_PRESENT "FOUND")
@@ -45,7 +49,9 @@ if (EXISTS "/usr/local/xclib/lib/pxipl_x86_64.a")
 			src/background.cpp )
 
 	add_executable(agent_tracker ${agent_tracker_files})
-	target_link_libraries(agent_tracker agent_tracking)
+	target_link_libraries(agent_tracker
+			LINK_PUBLIC
+			agent_tracking)
 else()
 	message(STATUS "Building service only")
 endif()
