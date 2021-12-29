@@ -9,6 +9,7 @@ project(agent_tracking
 
 find_package(Dependencies)
 
+install_dependency(https://github.com/germanespinosa/tcp-messages Tcp_messages)
 install_dependency(https://github.com/germanespinosa/cellworld Cellworld)
 
 ###

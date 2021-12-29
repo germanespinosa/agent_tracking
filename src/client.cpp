@@ -5,6 +5,7 @@
 using namespace cell_world;
 using namespace std;
 using namespace agent_tracking;
+using namespace tcp_messages;
 
 namespace agent_tracking {
 
@@ -34,7 +35,7 @@ namespace agent_tracking {
     }
 
     bool Client::register_consumer() {
-        if (!send_message(cell_world::Message("register_consumer"))) return false;
+        if (!send_message(Message("register_consumer"))) return false;
         registered_consumer = wait_for_result("register_consumer").body == "ok";
         return registered_consumer;
     }
@@ -59,7 +60,7 @@ namespace agent_tracking {
         return wait_for_result("update_puff").body == "ok";
     }
 
-    cell_world::Message Client::wait_for_result(const std::string &operation, double time_out) {
+    tcp_messages::Message Client::wait_for_result(const std::string &operation, double time_out) {
         Timer ts(time_out);
         std::string header = operation + "_result";
         while (!contains(header) && !ts.time_out());

@@ -6,6 +6,7 @@
 
 using namespace std;
 using namespace cell_world;
+using namespace tcp_messages;
 
 namespace agent_tracking {
 
@@ -118,7 +119,7 @@ namespace agent_tracking {
         send_message(Message("unregister_consumer_result", "ok"));
     }
 
-    void Service::unrouted_message(const cell_world::Message &) {
+    void Service::unrouted_message(const Message &) {
         send_data(Message("wrong_message_result", "fail").to_json());
     }
 
@@ -149,7 +150,7 @@ namespace agent_tracking {
         return atoi(port_str.c_str());
     }
 
-    void Service::send_update(const cell_world::Message &message) {
+    void Service::send_update(const Message &message) {
         auto message_str = message.to_json();
         vector<easy_tcp::Connection *> to_remove;
         consumers_mutex.lock();

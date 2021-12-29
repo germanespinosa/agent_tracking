@@ -1,10 +1,11 @@
 #pragma once
 #include <cell_world.h>
+#include <tcp_messages.h>
 #include <agent_tracking/message.h>
 
 
 namespace agent_tracking {
-    struct Service : cell_world::Message_service {
+    struct Service : tcp_messages::Message_service {
         Routes(
                 Add_route("new_episode", new_episode, New_episode_message);
                 Add_route("end_episode", end_episode);
@@ -36,7 +37,7 @@ namespace agent_tracking {
         virtual void hide_occlusions();
 
         //unrouted
-        void unrouted_message(const cell_world::Message &) override;
+        void unrouted_message(const tcp_messages::Message &) override;
 
         //connection events
         void on_connect() override;
@@ -44,7 +45,7 @@ namespace agent_tracking {
 
         //static
         static int get_port();
-        static void send_update(const cell_world::Message &);
+        static void send_update(const tcp_messages::Message &);
     private:
         void remove_consumer();
     };

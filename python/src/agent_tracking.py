@@ -132,7 +132,7 @@ class Agent_tracking:
 
 class Filtered_client:
 
-    def __init__(self, complementary_filter=0.0, outlier_distance=0.0, outlier_threshold=0):
+    def __init__(self, complementary_filter=0.0, outlier_distance=0, outlier_threshold=0):
         self.complementary_filter = complementary_filter
         self.outlier_distance = outlier_distance
         self.outlier_threshold = outlier_threshold

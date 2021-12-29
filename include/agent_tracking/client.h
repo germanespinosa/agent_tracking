@@ -1,9 +1,10 @@
 #pragma once
 #include <cell_world.h>
+#include <tcp_messages.h>
 #include <map>
 
 namespace agent_tracking {
-    struct Client : cell_world::Message_client {
+    struct Client : tcp_messages::Message_client {
         Routes(
                 Add_route("(.*)(step)", process_step, cell_world::Step);
                 )
@@ -22,7 +23,7 @@ namespace agent_tracking {
         bool update_puff();
         cell_world::Step &get_current_state(const std::string &agent_name);
         bool contains_agent_state(const std::string &agent_name);
-        cell_world::Message wait_for_result(const std::string &operation, double time_out = 5.0);
+        tcp_messages::Message wait_for_result(const std::string &operation, double time_out = 5.0);
         std::atomic<bool> registered_consumer;
         bool episode_in_progress;
         std::thread consumer;
