@@ -6,7 +6,7 @@
 using namespace agent_tracking;
 using namespace cell_world;
 using namespace std;
-
+using namespace tcp_messages;
 
 TEST_CASE("tracking simulator") {
     Timer ts;

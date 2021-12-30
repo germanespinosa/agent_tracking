@@ -60,8 +60,8 @@ endif()
 ###
 ### TESTS
 ###
-#install_dependency(https://github.com/germanespinosa/catch CatchTests)
-#test_library(agent_tracking)
+install_dependency(https://github.com/germanespinosa/catch CatchTests)
+test_library(agent_tracking)
 
 
 ###
