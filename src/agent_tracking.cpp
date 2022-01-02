@@ -2,6 +2,13 @@
 #include <agent_tracking.h>
 #include <habitat_cv.h>
 #include <cell_world/timer.h>
+#include <tcp_messages.h>
+#include <agent_tracking/service.h>
+#include <agent_tracking/background.h>
+#include <agent_tracking/camera_array.h>
+#include <agent_tracking/client.h>
+#include <agent_tracking/frame_rate.h>
+#include <agent_tracking/layouts.h>
 
 #define SAFETY_MARGIN 75
 #define PUFF_DURATION 15
@@ -10,6 +17,7 @@ using namespace habitat_cv;
 using namespace cell_world;
 using namespace easy_tcp;
 using namespace std;
+using namespace tcp_messages;
 
 namespace agent_tracking {
 

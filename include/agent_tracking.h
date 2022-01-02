@@ -1,12 +1,5 @@
 #pragma once
 #include <agent_tracking/message.h>
-#include <agent_tracking/service.h>
-#include <agent_tracking/background.h>
-#include <agent_tracking/camera_array.h>
-#include <agent_tracking/client.h>
-#include <agent_tracking/frame_rate.h>
-#include <agent_tracking/layouts.h>
-#include <agent_tracking/time_stamp.h>
 
 namespace agent_tracking {
     void set_camera_file(const std::string &);

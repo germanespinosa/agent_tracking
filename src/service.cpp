@@ -1,8 +1,5 @@
 #include <agent_tracking/service.h>
 #include <mutex>
-#if XLIBALL_PRESENT
-#include <agent_tracking.h>
-#endif
 
 using namespace std;
 using namespace cell_world;
@@ -12,59 +9,8 @@ namespace agent_tracking {
 
     vector<easy_tcp::Connection *> consumers;
     mutex consumers_mutex;
-    Habitat_data habitat_data;
+    World_info world_info;
 
-
-#if XLIBALL_PRESENT
-    void Service::new_experiment(const std::string &occlusions) {
-        cout << "new_experiment" << endl;
-        send_update(Message("new_experiment", New_experiment_message{occlusions}));
-        send_message(Message("new_experiment_result", "ok"));
-    }
-
-    void Service::new_episode(New_episode_message nem) {
-        cout << "new_episode" << endl;
-        agent_tracking::new_episode(nem);
-        send_message(Message("new_episode_result", "ok"));
-    }
-
-    void Service::end_episode() {
-        cout << "end_episode" << endl;
-        agent_tracking::end_episode();
-        send_message(Message("end_episode_result", "ok"));
-    }
-
-    void Service::update_background() {
-        cout << "update_background" << endl;
-        agent_tracking::initialize_background();
-        send_message(Message("update_background_result", "ok"));
-    }
-
-    void Service::reset_cameras() {
-        cout << "reset_cameras" << endl;
-        agent_tracking::reset_cameras();
-        send_message(Message("reset_cameras_result", "ok"));
-    }
-
-    void Service::update_puff() {
-        cout << "update_puff" << endl;
-        agent_tracking::update_puff();
-        send_message(Message("update_puff_result", "ok"));
-    }
-
-    void Service::show_occlusions(const string &occlusions) {
-        cout << "show_occlusions" << endl;
-        Service::set_occlusions(occlusions);
-        agent_tracking::set_occlusions(occlusions);
-        send_message(Message("show_occlusions_result", "ok"));
-    }
-
-    void Service::hide_occlusions() {
-        cout << "hide_occlusions" << endl;
-        agent_tracking::set_occlusions("00_00");
-        send_message(Message("hide_occlusions_result", "ok"));
-    }
-#else
     void Service::new_experiment(const std::string &) {
         cout << "new_experiment" << endl;
         send_message(Message("new_experiment_result", "ok"));
@@ -104,8 +50,6 @@ namespace agent_tracking {
         cout << "hide_occlusions" << endl;
         send_message(Message("hide_occlusions_result", "ok"));
     }
-
-#endif
 
     void Service::register_consumer() {
         cout << "register_consumer" << endl;
@@ -167,19 +111,19 @@ namespace agent_tracking {
         consumers_mutex.unlock();
     }
 
-    void Service::get_habitat_data() {
-        send_message(Message("habitat_data", habitat_data.to_json()));
+    void Service::get_world_info() {
+        send_message(Message("habitat_data", world_info.to_json()));
     }
 
     void Service::set_world_configuration(const std::string &world_configuration_name) {
-        habitat_data.world_configuration = world_configuration_name;
+        world_info.world_configuration = world_configuration_name;
     }
 
     void Service::set_world_implementation(const std::string &world_implementation_name) {
-        habitat_data.world_implementation = world_implementation_name;
+        world_info.world_implementation = world_implementation_name;
     }
 
     void Service::set_occlusions(const std::string &occlusions_name) {
-        habitat_data.occlusions = occlusions_name;
+        world_info.occlusions = occlusions_name;
     }
 }

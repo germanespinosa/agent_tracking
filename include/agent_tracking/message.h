@@ -25,7 +25,7 @@ namespace agent_tracking {
                 Add_member(episode);
         )
     };
-    struct Habitat_data : json_cpp::Json_object {
+    struct World_info : json_cpp::Json_object {
         std::string world_configuration;
         std::string world_implementation;
         std::string occlusions;

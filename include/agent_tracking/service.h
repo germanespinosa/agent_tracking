@@ -17,7 +17,7 @@ namespace agent_tracking {
                 Add_route("show_occlusions", show_occlusions, std::string);
                 Add_route("hide_occlusions", hide_occlusions);
                 Add_route("new_experiment", new_experiment, std::string);
-                Add_route("get_habitat_data", get_habitat_data);
+                Add_route("get_world_info", get_world_info);
         )
 
         // routes
@@ -35,7 +35,7 @@ namespace agent_tracking {
         //visualization
         virtual void show_occlusions(const std::string &);
         virtual void hide_occlusions();
-        void get_habitat_data();
+        void get_world_info();
         //unrouted
         void unrouted_message(const tcp_messages::Message &) override;
 

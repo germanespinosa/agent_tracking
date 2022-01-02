@@ -33,13 +33,13 @@ target_link_libraries(agent_tracking
 dependency_include(include)
 
 if (EXISTS "/usr/local/xclib/lib/pxipl_x86_64.a")
-	message (STATUS "adding agent_tracker")
+	message ("BUILDING TRACKER")
+	find_package( OpenCV 4.0.1 REQUIRED )
 	add_compile_definitions(XLIBALL_PRESENT "FOUND")
-	add_dependency_package (OpenCV)
 	install_dependency(https://github.com/germanespinosa/habitat_cv Habitat_cv)
-	target_link_libraries(agent_tracking /usr/local/xclib/lib/pxipl_x86_64.a  /usr/local/xclib/lib/xclib_x86_64.a m -pthread )
-	target_link_libraries(agent_tracking ${OpenCV_LIBS} habitat_cv)
-	dependency_include(/usr/local/xclib/inc/)
+	message("OPENCV DIRECTORIES: ${OpenCV_INCLUDE_DIRS}")
+	include_directories(/usr/local/xclib/inc/
+			${OpenCV_INCLUDE_DIRS})
 	set ( agent_tracker_files
 			src/tools/agent_tracker.cpp
 			src/camera_array.cpp
@@ -47,12 +47,17 @@ if (EXISTS "/usr/local/xclib/lib/pxipl_x86_64.a")
 			src/layouts.cpp
 			src/service.cpp
 			src/agent_tracking.cpp
-			src/background.cpp )
+			src/background.cpp src/cv_service.cpp include/agent_tracking/cv_service.h)
 
 	add_executable(agent_tracker ${agent_tracker_files})
 	target_link_libraries(agent_tracker
 			LINK_PUBLIC
-			agent_tracking)
+			agent_tracking
+			/usr/local/xclib/lib/pxipl_x86_64.a
+			/usr/local/xclib/lib/xclib_x86_64.a m -pthread
+			habitat_cv
+			${OpenCV_LIBS})
+
 else()
 	message(STATUS "Building service only")
 endif()
