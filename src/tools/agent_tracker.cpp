@@ -18,6 +18,8 @@ int main(int argc, char **argv){
     string cam_config = argv[1];
     string bg_path = "/maze/agent_tracking/backgrounds/" + cam_config + "/";
     string cam_file = "/maze/agent_tracking/config/EPIX_" + cam_config + ".fmt";
+    Service::set_world_configuration("hexagonal");
+    Service::set_world_implementation("CV");
     agent_tracking::set_camera_file(cam_file);
     agent_tracking::set_background_path(bg_path);
     server.start(Service::get_port());

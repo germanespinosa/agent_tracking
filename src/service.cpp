@@ -12,6 +12,7 @@ namespace agent_tracking {
 
     vector<easy_tcp::Connection *> consumers;
     mutex consumers_mutex;
+    Habitat_data habitat_data;
 
 
 #if XLIBALL_PRESENT
@@ -53,6 +54,7 @@ namespace agent_tracking {
 
     void Service::show_occlusions(const string &occlusions) {
         cout << "show_occlusions" << endl;
+        Service::set_occlusions(occlusions);
         agent_tracking::set_occlusions(occlusions);
         send_message(Message("show_occlusions_result", "ok"));
     }
@@ -163,5 +165,21 @@ namespace agent_tracking {
         }
         for (auto consumer:to_remove) remove_connection(consumer); // remove failed
         consumers_mutex.unlock();
+    }
+
+    void Service::get_habitat_data() {
+        send_message(Message("habitat_data", habitat_data.to_json()));
+    }
+
+    void Service::set_world_configuration(const std::string &world_configuration_name) {
+        habitat_data.world_configuration = world_configuration_name;
+    }
+
+    void Service::set_world_implementation(const std::string &world_implementation_name) {
+        habitat_data.world_implementation = world_implementation_name;
+    }
+
+    void Service::set_occlusions(const std::string &occlusions_name) {
+        habitat_data.occlusions = occlusions_name;
     }
 }
