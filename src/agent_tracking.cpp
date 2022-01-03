@@ -114,7 +114,13 @@ namespace agent_tracking {
         cam0,
         cam1,
         cam2,
-        cam3
+        cam3,
+        warped0,
+        warped1,
+        warped2,
+        warped3,
+        composite_image,
+        large
     };
 
     void tracking_process() {
@@ -194,14 +200,14 @@ namespace agent_tracking {
             auto main_frame = main_layout.get_frame(composite_image_rgb, frame_number);
 
             auto raw_frame = raw_layout.get_frame(cameras->images);
-            Location l1 = mouse.location - Location(50, 50);
+            Location l1 = mouse.location * 2 - Location(100, 100);
             if (l1.x < 0) l1.x = 0;
             if (l1.y < 0) l1.y = 0;
             if (l1.x > 980) l1.x = 980;
             if (l1.y > 980) l1.x = 980;
             Images mouse_cut;
             for (auto &image: composite.warped) {
-                Content_crop cut(l1, l1 + Location{100, 100}, Image::Type::gray);
+                Content_crop cut(l1, l1 + Location{200, 200}, Image::Type::gray);
                 cut = image;
                 mouse_cut.emplace_back(cut);
             }
@@ -255,6 +261,24 @@ namespace agent_tracking {
                 case Screen_image::cam3 :
                     screen_frame = screen_layout.get_frame(cameras->images[3], "cam3");
                     break;
+                case Screen_image::warped0 :
+                    screen_frame = screen_layout.get_frame(composite.warped[0], "warped0");
+                    break;
+                case Screen_image::warped1 :
+                    screen_frame = screen_layout.get_frame(composite.warped[1], "warped1");
+                    break;
+                case Screen_image::warped2 :
+                    screen_frame = screen_layout.get_frame(composite.warped[2], "warped2");
+                    break;
+                case Screen_image::warped3 :
+                    screen_frame = screen_layout.get_frame(composite.warped[3], "warped3");
+                    break;
+                case Screen_image::composite_image :
+                    screen_frame = screen_layout.get_frame(composite.composite, "composite");
+                    break;
+                case Screen_image::large :
+                    screen_frame = screen_layout.get_frame(composite.composite_large, "large");
+                    break;
             }
             if (main_video.is_open()) screen_frame.circle({20, 20}, 10, {0, 0, 255}, true);
             cv::imshow("Agent Tracking", screen_frame);
@@ -281,7 +305,7 @@ namespace agent_tracking {
                     initialize_background();
                     break;
                 case '\t':
-                    if (screen_image == Screen_image::cam3)
+                    if (screen_image == Screen_image::large)
                         screen_image = Screen_image::main;
                     else
                         screen_image = static_cast<Screen_image>(screen_image + 1);
@@ -289,7 +313,7 @@ namespace agent_tracking {
                     break;
                 case ' ':
                     if (screen_image == Screen_image::main)
-                        screen_image = Screen_image::cam3;
+                        screen_image = Screen_image::large;
                     else
                         screen_image = static_cast<Screen_image>(screen_image - 1);
                     cout << "change_screen_output to " << screen_image << endl;

@@ -1,10 +1,7 @@
 #include <agent_tracking/camera_array.h>
 #include <iostream>
 #include <future>
-
-#if XLIBALL_PRESENT
-#include "xcliball.h"
-#endif
+#include <xcliball.h>
 
 using namespace std;
 using namespace habitat_cv;
@@ -21,13 +18,11 @@ namespace agent_tracking {
     }
 
     void Camera_array::capture() {
-#if XLIBALL_PRESENT
         vector<std::future<int>> futures;
         for (unsigned int c = 0; c < camera_count; c++) {
             int grabber_bit_map = 1 << c; // frame grabber identifier is 4 bits with a 1 on the device number.
             pxd_readuchar(grabber_bit_map, 1, 0, 0, -1, -1, images[c].data, frame_size, "Grey");
         }
-#endif
     }
 
     void Camera_array::reset() {
@@ -36,7 +31,6 @@ namespace agent_tracking {
     }
 
     void Camera_array::open() {
-#if XLIBALL_PRESENT
         pxd_PIXCIopen("", "", config_file.c_str());
         if (pxd_goLive(15, 1)) {
             cerr << "Failed to initialize frame grabbers" << endl;
@@ -47,13 +41,10 @@ namespace agent_tracking {
             images.emplace_back(size.height, size.width, Image::Type::gray);
         }
         frame_size = size.width * size.height;
-#endif
     }
 
     void Camera_array::close() {
-#if XLIBALL_PRESENT
         pxd_PIXCIclose();
-#endif
     }
 }
 
