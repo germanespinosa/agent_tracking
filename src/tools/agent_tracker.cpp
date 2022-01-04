@@ -16,8 +16,8 @@ int main(int argc, char **argv){
     }
     easy_tcp::Server<Cv_service> server;
     string cam_config = argv[1];
-    string bg_path = "/maze/agent_tracking/backgrounds/" + cam_config + "/";
-    string cam_file = "/maze/agent_tracking/config/EPIX_" + cam_config + ".fmt";
+    string bg_path = "/habitat/agent_tracking/backgrounds/" + cam_config + "/";
+    string cam_file = "/habitat/agent_tracking/config/EPIX_" + cam_config + ".fmt";
     Service::set_world_configuration("hexagonal");
     Service::set_world_implementation("CV");
     agent_tracking::set_camera_file(cam_file);

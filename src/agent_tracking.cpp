@@ -200,14 +200,14 @@ namespace agent_tracking {
             auto main_frame = main_layout.get_frame(composite_image_rgb, frame_number);
 
             auto raw_frame = raw_layout.get_frame(cameras->images);
-            Location l1 = mouse.location * 2 - Location(100 * composite.resize_factor, 100 * composite.resize_factor);
+            Location l1 = (mouse.location - Location(50, 50 )) * composite.resize_factor;
             if (l1.x < 0) l1.x = 0;
             if (l1.y < 0) l1.y = 0;
-            if (l1.x > 980) l1.x = 980;
-            if (l1.y > 980) l1.x = 980;
+            if (l1.x > 980 * composite.resize_factor) l1.x = 980 * composite.resize_factor;
+            if (l1.y > 980 * composite.resize_factor) l1.y = 980 * composite.resize_factor;
             Images mouse_cut;
             for (auto &image: composite.warped) {
-                Content_crop cut(l1, l1 + Location{200 * composite.resize_factor, 200 * composite.resize_factor}, Image::Type::gray);
+                Content_crop cut(l1, l1 + Location(100 , 100) * composite.resize_factor, Image::Type::gray);
                 cut = image;
                 mouse_cut.emplace_back(cut);
             }
