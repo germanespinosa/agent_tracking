@@ -284,6 +284,16 @@ namespace agent_tracking {
             cv::imshow("Agent Tracking", screen_frame);
             auto key = cv::waitKey(1);
             switch (key) {
+                case 'V':
+                    main_video.new_video("main.mp4");
+                    raw_video.new_video("raw.mp4");
+                    mouse_video.new_video("mouse.mp4");
+                    break;
+                case 'B':
+                    main_video.close();
+                    mouse_video.close();
+                    raw_video.close();
+                    break;
                 case 'Q':
                     tracking_running = false;
                     break;
