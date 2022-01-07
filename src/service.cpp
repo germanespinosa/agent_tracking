@@ -112,7 +112,7 @@ namespace agent_tracking {
     }
 
     void Service::get_world_info() {
-        send_message(Message("habitat_data", world_info.to_json()));
+        send_message(Message("get_world_info_result", world_info.to_json()));
     }
 
     void Service::set_world_configuration(const std::string &world_configuration_name) {
@@ -129,7 +129,7 @@ namespace agent_tracking {
 
     void Service::send_step(const Step &step) {
         Step converted_step = step;
-        
+
         Message update (converted_step.agent_name + "_step", converted_step);
     }
 }

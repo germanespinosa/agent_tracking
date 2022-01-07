@@ -36,8 +36,8 @@ namespace agent_tracking {
         virtual void show_occlusions(const std::string &);
         virtual void hide_occlusions();
 
-
         void get_world_info();
+
         //unrouted
         void unrouted_message(const tcp_messages::Message &) override;
 
