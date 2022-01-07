@@ -47,6 +47,7 @@ namespace agent_tracking {
 
         //static
         static int get_port();
+        static void send_step(const cell_world::Step &);
         static void send_update(const tcp_messages::Message &);
         static void set_world_configuration(const std::string &);
         static void set_world_implementation(const std::string &);

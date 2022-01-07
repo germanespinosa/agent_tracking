@@ -126,4 +126,10 @@ namespace agent_tracking {
     void Service::set_occlusions(const std::string &occlusions_name) {
         world_info.occlusions = occlusions_name;
     }
+
+    void Service::send_step(const Step &step) {
+        Step converted_step = step;
+        
+        Message update (converted_step.agent_name + "_step", converted_step);
+    }
 }

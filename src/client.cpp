@@ -87,6 +87,12 @@ namespace agent_tracking {
 
     }
 
+    World_info Client::get_world_info() {
+        send_message(Message("get_world_info"));
+        auto m = wait_for_result("get_world_info");
+        return m.get_body<World_info>();
+    }
+
     void Filtered_client::process_step(const cell_world::Step &step) {
         if (agent_filters.count(step.agent_name))
             agent_filters[step.agent_name] = filter_template;

@@ -64,7 +64,7 @@ namespace agent_tracking {
     }
 
     bool get_robot_step(const Image &image, Step &step) {
-        auto leds = Detection_list::get_detections(image, robot_threshold, 1).filter(led_profile);
+        auto leds = Detection_list::get_detections(image, robot_threshold, 0).filter(led_profile);
         if (leds.size() != 3) return false;
         double d1 = leds[0].location.dist(leds[1].location);
         double d2 = leds[1].location.dist(leds[2].location);
@@ -179,7 +179,7 @@ namespace agent_tracking {
                 composite_image_rgb.polygon(cell_polygon, color_robot);
                 composite_image_rgb.arrow(robot.location, to_radians(robot.rotation), 50, color_robot);
 
-                Service::send_update(Message("predator_step",robot));
+                Service::send_step(robot);
                 robot_counter = 30;
             } else {
                 if (robot_counter) robot_counter--;
@@ -191,7 +191,7 @@ namespace agent_tracking {
                 mouse.time_stamp = ts.to_seconds();
                 mouse.frame = frame_number;
 
-                Service::send_update(Message("prey_step",mouse));
+                Service::send_step(mouse);
                 composite_image_rgb.circle(mouse.location, 5, {255, 0, 0}, true);
                 auto cell_polygon = composite.get_polygon(mouse.coordinates);
                 composite_image_rgb.polygon(cell_polygon, {255, 0, 0});
@@ -285,11 +285,13 @@ namespace agent_tracking {
             auto key = cv::waitKey(1);
             switch (key) {
                 case 'V':
+                    // start video recording
                     main_video.new_video("main.mp4");
                     raw_video.new_video("raw.mp4");
                     mouse_video.new_video("mouse.mp4");
                     break;
                 case 'B':
+                    // end video recording
                     main_video.close();
                     mouse_video.close();
                     raw_video.close();

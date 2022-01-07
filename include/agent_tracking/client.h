@@ -1,6 +1,7 @@
 #pragma once
 #include <cell_world.h>
 #include <tcp_messages.h>
+#include <agent_tracking/message.h>
 #include <map>
 
 namespace agent_tracking {
@@ -21,6 +22,7 @@ namespace agent_tracking {
         bool reset_cameras();
         bool update_background();
         bool update_puff();
+        World_info get_world_info();
         cell_world::Step &get_current_state(const std::string &agent_name);
         bool contains_agent_state(const std::string &agent_name);
         tcp_messages::Message wait_for_result(const std::string &operation, double time_out = 5.0);
