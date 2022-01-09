@@ -32,6 +32,12 @@ target_link_libraries(agent_tracking
 
 dependency_include(include)
 
+###
+### TESTS
+###
+install_dependency(https://github.com/germanespinosa/catch CatchTests)
+test_library(agent_tracking catchtests/tracking_service.cpp)
+
 if (EXISTS "/usr/local/xclib/lib/pxipl_x86_64.a")
 	message ("BUILDING TRACKER")
 	install_dependency(https://github.com/germanespinosa/habitat_cv Habitat_cv)
@@ -57,13 +63,6 @@ if (EXISTS "/usr/local/xclib/lib/pxipl_x86_64.a")
 else()
 	message(STATUS "Building service only")
 endif()
-
-###
-### TESTS
-###
-install_dependency(https://github.com/germanespinosa/catch CatchTests)
-test_library(agent_tracking)
-
 
 ###
 ### LIBRARY INSTALLATION

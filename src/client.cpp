@@ -25,46 +25,28 @@ namespace agent_tracking {
         nem.subject = subject;
         nem.occlusions = occlusions;
         nem.destination_folder = destination_folder;
-        if (!send_message(Message("new_episode",nem))) return false;
-        return wait_for_result("new_episode").body == "ok";
+        return send_request(Message("new_episode",nem)).get_body<bool>();
     }
 
     bool Client::end_episode() {
-        if (!send_message(Message("end_episode"))) return false;
-        return wait_for_result("end_episode").body == "ok";
+        return send_request(Message("end_episode")).get_body<bool>();
     }
 
     bool Client::register_consumer() {
-        if (!send_message(Message("register_consumer"))) return false;
-        registered_consumer = wait_for_result("register_consumer").body == "ok";
+        registered_consumer = send_request(Message("end_episode")).get_body<bool>();
         return registered_consumer;
     }
 
-    bool Client::reset_cameras() {
-        if (!send_message(Message("reset_cameras"))) return false;
-        return wait_for_result("reset_cameras").body == "ok";
-    }
-
     bool Client::unregister_consumer() {
-        if (!send_message(Message("unregister_consumer"))) return false;
-        return wait_for_result("unregister_consumer").body == "ok";
-    }
-
-    bool Client::update_background() {
-        if (!send_message(Message("update_background"))) return false;
-        return wait_for_result("update_background").body == "ok";
+        if (send_request(Message("end_episode")).get_body<bool>()) {
+            registered_consumer = false;
+            return true;
+        }
+        return false;
     }
 
     bool Client::update_puff() {
-        if (!send_message(Message("update_puff"))) return false;
-        return wait_for_result("update_puff").body == "ok";
-    }
-
-    tcp_messages::Message Client::wait_for_result(const std::string &operation, double time_out) {
-        Timer ts(time_out);
-        std::string header = operation + "_result";
-        while (!contains(header) && !ts.time_out());
-        return get_message(header);
+        return send_request(Message("update_puff")).get_body<bool>();
     }
 
     Client::Client() {
@@ -88,9 +70,7 @@ namespace agent_tracking {
     }
 
     World_info Client::get_world_info() {
-        send_message(Message("get_world_info"));
-        auto m = wait_for_result("get_world_info");
-        return m.get_body<World_info>();
+        return send_request(Message("get_world_info")).get_body<World_info>();
     }
 
     void Filtered_client::process_step(const cell_world::Step &step) {

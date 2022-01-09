@@ -7,36 +7,36 @@
 namespace agent_tracking {
     struct Service : tcp_messages::Message_service {
         Routes(
-                Add_route("new_episode", new_episode, New_episode_message);
-                Add_route("end_episode", end_episode);
-                Add_route("update_background", update_background);
-                Add_route("register_consumer", register_consumer);
-                Add_route("reset_cameras", reset_cameras);
-                Add_route("unregister_consumer", unregister_consumer);
-                Add_route("update_puff", update_puff);
-                Add_route("show_occlusions", show_occlusions, std::string);
-                Add_route("hide_occlusions", hide_occlusions);
-                Add_route("new_experiment", new_experiment, std::string);
-                Add_route("get_world_info", get_world_info);
+                //consumer
+                Add_route_with_response("register_consumer", register_consumer);
+                Add_route_with_response("unregister_consumer", unregister_consumer);
+                // experiment
+                Add_route_with_response("new_experiment", new_experiment, std::string);
+                Add_route_with_response("new_episode", new_episode, New_episode_message);
+                Add_route_with_response("end_episode", end_episode);
+                Add_route_with_response("update_puff", update_puff);
+                //world
+                Add_route_with_response("set_occlusions", set_occlusions, std::string);
+                Add_route_with_response("set_world_configuration", set_world_configuration, std::string);
+                Add_route_with_response("set_world_implementation", set_world_implementation, std::string);
+                Add_route_with_response("get_world_info", get_world_info);
         )
 
         // routes
         //consumer
-        virtual void register_consumer();
-        virtual void unregister_consumer();
+        virtual bool register_consumer();
+        virtual bool unregister_consumer();
         //experiment
-        virtual void new_experiment(const std::string &);
-        virtual void new_episode(New_episode_message);
-        virtual void end_episode();
+        virtual bool new_experiment(const std::string &) { return true; };
+        virtual bool new_episode(New_episode_message) { return true; };
+        virtual bool end_episode() { return true; };
         //camera
-        virtual void update_background();
-        virtual void reset_cameras();
-        virtual void update_puff();
-        //visualization
-        virtual void show_occlusions(const std::string &);
-        virtual void hide_occlusions();
-
-        void get_world_info();
+        virtual bool update_puff() { return true; };
+        //world
+        World_info get_world_info();
+        static bool set_world_configuration(const std::string &);
+        static bool set_world_implementation(const std::string &);
+        static bool set_occlusions(const std::string &);
 
         //unrouted
         void unrouted_message(const tcp_messages::Message &) override;
@@ -49,9 +49,6 @@ namespace agent_tracking {
         static int get_port();
         static void send_step(const cell_world::Step &);
         static void send_update(const tcp_messages::Message &);
-        static void set_world_configuration(const std::string &);
-        static void set_world_implementation(const std::string &);
-        static void set_occlusions(const std::string &);
     private:
         void remove_consumer();
     };

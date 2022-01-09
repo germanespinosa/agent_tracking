@@ -11,58 +11,18 @@ namespace agent_tracking {
     mutex consumers_mutex;
     World_info world_info;
 
-    void Service::new_experiment(const std::string &) {
-        cout << "new_experiment" << endl;
-        send_message(Message("new_experiment_result", "ok"));
-    }
-
-    void Service::new_episode(New_episode_message ) {
-        cout << "new_episode" << endl;
-        send_message(Message("new_episode_result", "ok"));
-    }
-
-    void Service::end_episode() {
-        cout << "end_episode" << endl;
-        send_message(Message("end_episode_result", "ok"));
-    }
-
-    void Service::update_background() {
-        cout << "update_background" << endl;
-        send_message(Message("update_background_result", "ok"));
-    }
-
-    void Service::reset_cameras() {
-        cout << "reset_cameras" << endl;
-        send_message(Message("reset_cameras_result", "ok"));
-    }
-
-    void Service::update_puff() {
-        cout << "update_puff" << endl;
-        send_message(Message("update_puff_result", "ok"));
-    }
-
-    void Service::show_occlusions(const string &) {
-        cout << "show_occlusions" << endl;
-        send_message(Message("show_occlusions_result", "ok"));
-    }
-
-    void Service::hide_occlusions() {
-        cout << "hide_occlusions" << endl;
-        send_message(Message("hide_occlusions_result", "ok"));
-    }
-
-    void Service::register_consumer() {
+    bool Service::register_consumer() {
         cout << "register_consumer" << endl;
         consumers_mutex.lock();
         consumers.emplace_back(connection);
         consumers_mutex.unlock();
-        send_message(Message("register_consumer_result", "ok"));
+        return true;
     }
 
-    void Service::unregister_consumer() {
+    bool Service::unregister_consumer() {
         cout << "unregister_consumer" << endl;
         remove_consumer();
-        send_message(Message("unregister_consumer_result", "ok"));
+        return true;
     }
 
     void Service::unrouted_message(const Message &) {
@@ -111,25 +71,27 @@ namespace agent_tracking {
         consumers_mutex.unlock();
     }
 
-    void Service::get_world_info() {
-        send_message(Message("get_world_info_result", world_info.to_json()));
+    World_info Service::get_world_info() {
+        return world_info;
     }
 
-    void Service::set_world_configuration(const std::string &world_configuration_name) {
+    bool Service::set_world_configuration(const std::string &world_configuration_name) {
         world_info.world_configuration = world_configuration_name;
+        return true;
     }
 
-    void Service::set_world_implementation(const std::string &world_implementation_name) {
+    bool Service::set_world_implementation(const std::string &world_implementation_name) {
         world_info.world_implementation = world_implementation_name;
+        return true;
     }
 
-    void Service::set_occlusions(const std::string &occlusions_name) {
+    bool Service::set_occlusions(const std::string &occlusions_name) {
         world_info.occlusions = occlusions_name;
+        return true;
     }
 
     void Service::send_step(const Step &step) {
         Step converted_step = step;
-
         Message update (converted_step.agent_name + "_step", converted_step);
     }
 }
