@@ -93,5 +93,6 @@ namespace agent_tracking {
     void Service::send_step(const Step &step) {
         Step converted_step = step;
         Message update (converted_step.agent_name + "_step", converted_step);
+        send_update(update);
     }
 }
