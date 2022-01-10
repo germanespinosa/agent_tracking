@@ -7,6 +7,8 @@ project(agent_tracking
 		DESCRIPTION "Agent tracking service and computer vision system"
 		LANGUAGES CXX)
 
+string(APPEND CMAKE_CXX_FLAGS " -pthread ")
+
 find_package(Dependencies)
 
 install_dependency(https://github.com/germanespinosa/tcp-messages Tcp_messages)
