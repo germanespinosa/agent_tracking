@@ -62,12 +62,12 @@ class Agent_tracking:
                 self.client.connect(self.ip, self.port)
             self.client.connection.send(Message(cmd, parameters))
             t = Timer(5)
-            while not self.client.messages.contains(cmd + "_result") and t:
+            while not self.client.messages.contains(cmd + "_response") and t:
                 pass
             if not leave_open:
                 self.client.disconnect()
                 self.client = None
-            if self.client.messages.get_message(cmd + "_result").body == "ok":
+            if self.client.messages.get_message(cmd + "_response").body == "ok":
                 return True
             else:
                 return False
