@@ -3,7 +3,6 @@
 #include <tcp_messages.h>
 #include <agent_tracking/message.h>
 
-
 namespace agent_tracking {
     struct Service : tcp_messages::Message_service {
         Routes(

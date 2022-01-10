@@ -20,9 +20,6 @@ set( agent_tracking_files
 	src/service.cpp
 	src/client.cpp )
 
-string(APPEND CMAKE_CXX_FLAGS " -DC_GNU64=400 -DOS_LINUX -no-pie -Wall -Wextra -pthread ")
-string(APPEND CMAKE_CXX_FLAGS_RELEASE " -O3 ")
-
 add_library(agent_tracking ${agent_tracking_files})
 
 target_link_libraries(agent_tracking
@@ -36,11 +33,7 @@ dependency_include(include)
 ### TESTS
 ###
 install_dependency(https://github.com/germanespinosa/catch CatchTests)
-#test_library(agent_tracking catchtests/tracking_service.cpp)
-
-###
-### LIBRARY INSTALLATION
-###
+test_library(agent_tracking catchtests/tracking_service.cpp)
 
 include(GNUInstallDirs)
 
