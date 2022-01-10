@@ -33,12 +33,12 @@ namespace agent_tracking {
     }
 
     bool Client::register_consumer() {
-        registered_consumer = send_request(Message("end_episode")).get_body<bool>();
+        registered_consumer = send_request(Message("register_consumer")).get_body<bool>();
         return registered_consumer;
     }
 
     bool Client::unregister_consumer() {
-        if (send_request(Message("end_episode")).get_body<bool>()) {
+        if (send_request(Message("unregister_consumer")).get_body<bool>()) {
             registered_consumer = false;
             return true;
         }
