@@ -2,11 +2,9 @@
 #include <agent_tracking.h>
 #include <habitat_cv.h>
 #include <cell_world/timer.h>
-#include <tcp_messages.h>
 #include <agent_tracking/service.h>
 #include <agent_tracking/background.h>
 #include <agent_tracking/camera_array.h>
-#include <agent_tracking/client.h>
 #include <agent_tracking/frame_rate.h>
 #include <agent_tracking/layouts.h>
 
