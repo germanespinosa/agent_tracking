@@ -3,15 +3,9 @@
 namespace agent_tracking{
     struct Cv_service : Service {
         //experiment
-        void new_experiment(const std::string &) override;
-        void new_episode(New_episode_message) override;
-        void end_episode() override;
-        //camera
-        void update_background() override;
-        void reset_cameras() override;
-        void update_puff() override;
-        //visualization
-        void show_occlusions(const std::string &) override;
-        void hide_occlusions() override;
+        bool new_experiment(const std::string &) override;
+        bool new_episode(New_episode_message) override;
+        bool end_episode() override;
+        bool update_puff() override;
     };
 }
