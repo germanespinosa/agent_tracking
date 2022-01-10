@@ -59,6 +59,8 @@ class Agent_tracking:
         try:
             if new_connection:
                 self.client = Client()
+                self.client.router.add_route("predator_step", self.__new_step__, Step)
+                self.client.router.add_route("prey_step", self.__new_step__, Step)
                 self.client.connect(self.ip, self.port)
             self.client.connection.send(Message(cmd, parameters))
             t = Timer(5)
@@ -79,8 +81,6 @@ class Agent_tracking:
             check_types(call_back, [types.FunctionType, types.MethodType], "incorrect type for call_back")
         self.call_back = call_back
         self.registered = self.__run__("register_consumer", leave_open=True)
-        if self.registered:
-            self.client.router.add_route("step$", self.__new_step__, Step)
         return self.registered
 
     def unregister_consumer(self):

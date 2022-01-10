@@ -27,7 +27,7 @@ namespace agent_tracking {
 
     Camera_configuration camera_configuration = Resources::from("camera_configuration").key(
             "default").get_resource<Camera_configuration>();
-    Composite composite(camera_configuration);
+    Composite composite(camera_configuration, 1);
 
     auto led_profile = Resources::from("profile").key("led").get_resource<Profile>();
     auto mouse_profile = Resources::from("profile").key("mouse").get_resource<Profile>();
@@ -124,6 +124,7 @@ namespace agent_tracking {
     };
 
     void tracking_process() {
+        Frame_rate fr;
         tracking_running = true;
         puff_state = false;
         Step mouse;
@@ -138,9 +139,15 @@ namespace agent_tracking {
         Screen_image screen_image = Screen_image::main;
         while (tracking_running) {
             cameras->capture();
+            fr.new_frame();
+            cout << fr.filtered_fps << "                   \r";
+            Timer p;
             auto composite_image_gray = composite.get_composite(cameras->images);
+            cout << "this is the time " << p.to_seconds() * 1000 << endl;
             auto composite_image_rgb = composite_image_gray.to_rgb();
+
             auto diff = composite_image_gray.diff(background.composite);
+
             if (robot_best_cam == -1) {
                 new_robot_data = get_robot_step(composite_image_gray, robot);
             } else {
@@ -160,11 +167,6 @@ namespace agent_tracking {
                     int cam_col = robot.location.x > 540 ? 1 : 0;
                     robot_best_cam = camera_configuration.order[cam_row][cam_col];
                 }
-                auto cell_id = composite.map.cells.find(robot.location);
-                robot.coordinates = composite.map.cells[cell_id].coordinates;
-                robot.time_stamp = ts.to_seconds();
-                robot.frame = frame_number;
-
                 auto color_robot = cv::Scalar({255, 0, 255});
                 if (puff_state) {
                     robot.data = "puff";
@@ -173,25 +175,33 @@ namespace agent_tracking {
                 } else {
                     robot.data = "";
                 }
+                thread([frame_number](Step &robot, Composite &composite, Timer &ts){
+                    auto cell_id = composite.map.cells.find(robot.location);
+                    robot.coordinates = composite.map.cells[cell_id].coordinates;
+                    robot.time_stamp = ts.to_seconds();
+                    robot.frame = frame_number;
+                    Service::send_step(robot);
+                }, reference_wrapper(robot), reference_wrapper(composite), reference_wrapper(ts)).detach();
 
                 composite_image_rgb.circle(robot.location, 5, color_robot, true);
                 auto cell_polygon = composite.get_polygon(robot.coordinates);
                 composite_image_rgb.polygon(cell_polygon, color_robot);
                 composite_image_rgb.arrow(robot.location, to_radians(robot.rotation), 50, color_robot);
 
-                Service::send_step(robot);
                 robot_counter = 30;
             } else {
                 if (robot_counter) robot_counter--;
                 else robot.location = NOLOCATION;
             }
             if (get_mouse_step(diff, mouse, robot.location)) {
-                auto cell_id = composite.map.cells.find(mouse.location);
-                mouse.coordinates = composite.map.cells[cell_id].coordinates;
-                mouse.time_stamp = ts.to_seconds();
-                mouse.frame = frame_number;
+                thread([frame_number](Step &mouse, Composite &composite, Timer &ts){
+                    auto cell_id = composite.map.cells.find(mouse.location);
+                    mouse.coordinates = composite.map.cells[cell_id].coordinates;
+                    mouse.time_stamp = ts.to_seconds();
+                    mouse.frame = frame_number;
+                    Service::send_step(mouse);
+                }, reference_wrapper(mouse), reference_wrapper(composite), reference_wrapper(ts)).detach();
 
-                Service::send_step(mouse);
                 composite_image_rgb.circle(mouse.location, 5, {255, 0, 0}, true);
                 auto cell_polygon = composite.get_polygon(mouse.coordinates);
                 composite_image_rgb.polygon(cell_polygon, {255, 0, 0});
@@ -213,7 +223,6 @@ namespace agent_tracking {
             }
 
             auto mouse_frame = raw_layout.get_frame(mouse_cut);
-
             Image screen_frame;
             switch (screen_image) {
                 case Screen_image::main :
