@@ -10,8 +10,8 @@ using namespace tcp_messages;
 
 TEST_CASE("tracking simulator") {
     Timer ts;
-    easy_tcp::Server<Service> tracker;
-    tracker.start(Service::get_port());
+    easy_tcp::Server<Tracking_service> tracker;
+    tracker.start(Tracking_service::get_port());
     Step step;
     step.agent_name = "predator";
     step.frame = 0;
@@ -20,14 +20,14 @@ TEST_CASE("tracking simulator") {
     step.location = {0,0};
     step.coordinates = {0,0};
     step.time_stamp = 0;
-    agent_tracking::Client c;
+    agent_tracking::Tracking_client c;
     c.connect();
     c.register_consumer();
     while (!c.contains_agent_state("predator")){
         step.frame++;
         step.time_stamp = ts.to_seconds();
         auto msg = Message(step.agent_name+"_step", step);
-        Service::send_update(msg);
+        Tracking_service::send_update(msg);
         Timer::wait(.5);
         cout << step << endl;
     }

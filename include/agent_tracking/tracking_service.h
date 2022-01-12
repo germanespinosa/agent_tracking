@@ -19,8 +19,8 @@ namespace agent_tracking {
         virtual bool register_consumer();
         virtual bool unregister_consumer();
         //world
-        virtual cell_world::World_info get_world();
-        virtual bool set_world(const cell_world::World_info &);
+        static cell_world::World_info get_world();
+        static bool set_world(const cell_world::World_info &);
         //unrouted
         void unrouted_message(const tcp_messages::Message &) override;
 
