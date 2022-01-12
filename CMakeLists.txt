@@ -19,8 +19,8 @@ install_dependency(https://github.com/germanespinosa/cellworld Cellworld)
 ###
 
 set( agent_tracking_files
-	src/service.cpp
-	src/client.cpp )
+		src/tracking_service.cpp
+		src/tracking_client.cpp)
 
 add_library(agent_tracking ${agent_tracking_files})
 

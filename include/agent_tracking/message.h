@@ -25,14 +25,4 @@ namespace agent_tracking {
                 Add_member(episode);
         )
     };
-    struct World_info : json_cpp::Json_object {
-        std::string world_configuration;
-        std::string world_implementation;
-        std::string occlusions;
-        Json_object_members(
-                Add_member(world_configuration);
-                Add_member(world_implementation);
-                Add_member(occlusions);
-                )
-    };
 }

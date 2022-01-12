@@ -1,5 +1,5 @@
 def __module_version__():
-	return 0, 0, 10 
+	return 0, 0, 11 
 
 
 def __module_name__():
@@ -43,7 +43,7 @@ def __package_name__():
 
 
 def __files__():
-	return ['agent_tracking.py'] 
+	return ['tracking_client.py', 'tracking_service.py'] 
 
 
 def __setup_py__():

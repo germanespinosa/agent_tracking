@@ -1,6 +1,6 @@
 #include <catch.h>
-#include <agent_tracking/client.h>
-#include <agent_tracking/service.h>
+#include <agent_tracking/tracking_client.h>
+#include <agent_tracking/tracking_service.h>
 #include <cell_world.h>
 
 using namespace agent_tracking;
