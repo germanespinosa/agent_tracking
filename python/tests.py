@@ -1,4 +1,4 @@
-from cellworld_tracking import TrackingService, TrackingClient
+from src import TrackingService, TrackingClient
 from cellworld import Timer, Step, Coordinates, Location
 
 service = TrackingService()
@@ -22,10 +22,10 @@ while len(service.registered_consumers) == 0:
 print("consumer registered")
 
 time_stamp = Timer()
-for i in range(100):
+for i in range(100000):
     print(i, end=" ")
     service.send_step(Step(time_stamp.to_seconds(), "predator", i, Coordinates(i, -i), Location(float(i)/10, float(-i)/10), float(i)/30, "data:1"))
-    t = Timer(.015)
+    t = Timer(.15)
     while t:
         pass
 print("")

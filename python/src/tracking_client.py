@@ -27,8 +27,8 @@ class TrackingClient (MessageClient):
         self.world_info = world_info
         return True
 
-    def connect(self, ip: str = "127.0.0.1"):
-        MessageClient.connect(self, ip, TrackingService.port())
+    def connect(self, ip: str = "127.0.0.1") -> bool:
+        return MessageClient.connect(self, ip, TrackingService.port())
 
     def register_consumer(self, call_back=None):
         if call_back:

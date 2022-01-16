@@ -1,7 +1,6 @@
 #pragma once
 #include <cell_world.h>
 #include <tcp_messages.h>
-#include <agent_tracking/message.h>
 #include <map>
 
 namespace agent_tracking {

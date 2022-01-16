@@ -52,6 +52,11 @@ class TrackingService (MessageServer):
         self.send_update(Message(step.agent_name + "_step", step))
 
     def send_update(self, message: Message):
-        for consumers in self.registered_consumers:
-            consumers.send(message)
-
+        to_remove = []
+        for consumer in self.registered_consumers:
+            try:
+                consumer.send(message)
+            except:
+                to_remove.append(consumer)
+        for consumer in to_remove:
+            self.registered_consumers.remove(consumer)

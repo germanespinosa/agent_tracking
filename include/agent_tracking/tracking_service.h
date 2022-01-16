@@ -1,7 +1,6 @@
 #pragma once
 #include <cell_world.h>
 #include <tcp_messages.h>
-#include <agent_tracking/message.h>
 
 namespace agent_tracking {
     struct Tracking_service : tcp_messages::Message_service {
