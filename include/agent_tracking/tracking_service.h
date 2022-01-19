@@ -34,4 +34,6 @@ namespace agent_tracking {
     private:
         void remove_consumer();
     };
+
+    using Tracking_server = tcp_messages::Message_server<Tracking_service>;
 }

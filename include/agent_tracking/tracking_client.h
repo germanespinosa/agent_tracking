@@ -6,15 +6,15 @@
 namespace agent_tracking {
     struct Tracking_client : tcp_messages::Message_client {
         Routes(
-                Add_route("(.*)(step)", process_step, cell_world::Step);
-                Add_route("world_update", process_world_update, cell_world::World_info);
+                Add_route("(.*)(step)", on_step, cell_world::Step);
+                Add_route("world_update", on_world_update, cell_world::World_info);
                 )
 
         Tracking_client();
         ~Tracking_client();
 
-        virtual void process_step(const cell_world::Step &);
-        virtual void process_world_update(const cell_world::World_info &);
+        virtual void on_step(const cell_world::Step &);
+        virtual void on_world_update(const cell_world::World_info &);
 
         bool connect();
 

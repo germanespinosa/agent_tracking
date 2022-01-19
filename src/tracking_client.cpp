@@ -40,7 +40,7 @@ namespace agent_tracking {
         return current_states[agent_name];
     }
 
-    void Tracking_client::process_step(const cell_world::Step &step) {
+    void Tracking_client::on_step(const cell_world::Step &step) {
         current_states[step.agent_name] = step;
     }
 
@@ -56,7 +56,7 @@ namespace agent_tracking {
         return send_request(Message("get_world")).get_body<World_info>();
     }
 
-    void Tracking_client::process_world_update(const World_info &new_world_info) {
+    void Tracking_client::on_world_update(const World_info &new_world_info) {
         world_info = new_world_info;
     }
 }

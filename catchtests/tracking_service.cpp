@@ -7,11 +7,19 @@ using namespace agent_tracking;
 using namespace cell_world;
 using namespace std;
 using namespace tcp_messages;
+using namespace this_thread;
+
+struct Client : Tracking_client{
+    void on_step(const Step &step) override{
+        cout << step << endl;
+    }
+};
+
 
 TEST_CASE("tracking simulator") {
     Timer ts;
-    easy_tcp::Server<Tracking_service> tracker;
-    tracker.start(Tracking_service::get_port());
+    Tracking_server server;
+    server.start(Tracking_service::get_port());
     Step step;
     step.agent_name = "predator";
     step.frame = 0;
@@ -20,16 +28,18 @@ TEST_CASE("tracking simulator") {
     step.location = {0,0};
     step.coordinates = {0,0};
     step.time_stamp = 0;
-    agent_tracking::Tracking_client c;
-    c.connect();
-    c.register_consumer();
-    while (!c.contains_agent_state("predator")){
-        step.frame++;
+    Client client;
+    client.connect("127.0.0.1");
+    client.register_consumer();
+    sleep_for(1s);
+    for (step.frame=0; step.frame<10000; step.frame++) {
+        step.location.x = (float) step.frame / 10;
+        step.location.y = (float) step.frame / 20;
+        step.coordinates.x = step.frame % 10;
+        step.coordinates.y = -(step.frame % 20);
         step.time_stamp = ts.to_seconds();
-        auto msg = Message(step.agent_name+"_step", step);
-        Tracking_service::send_update(msg);
-        Timer::wait(.5);
-        cout << step << endl;
+        Tracking_service::send_step(step);
+        sleep_for(1s);
     }
-    c.disconnect();
+    server.stop();
 }
