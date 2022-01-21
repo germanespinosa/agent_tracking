@@ -32,14 +32,14 @@ TEST_CASE("tracking simulator") {
     client.connect("127.0.0.1");
     client.register_consumer();
     sleep_for(1s);
-    for (step.frame=0; step.frame<10000; step.frame++) {
+    for (step.frame=0; step.frame<100000; step.frame++) {
         step.location.x = (float) step.frame / 10;
         step.location.y = (float) step.frame / 20;
         step.coordinates.x = step.frame % 10;
         step.coordinates.y = -(step.frame % 20);
         step.time_stamp = ts.to_seconds();
         Tracking_service::send_step(step);
-        sleep_for(1s);
+        sleep_for(30ms);
     }
     server.stop();
 }
