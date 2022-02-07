@@ -11,6 +11,7 @@ namespace agent_tracking {
                 //world
                 Add_route_with_response("set_world", set_world, cell_world::World_info);
                 Add_route_with_response("get_world", get_world);
+                Allow_subscription();
         )
 
         // routes
@@ -29,11 +30,9 @@ namespace agent_tracking {
 
         //static
         static int get_port();
-        static void send_step(const cell_world::Step &);
-        static void send_update(const tcp_messages::Message &);
-    private:
-        void remove_consumer();
     };
 
-    using Tracking_server = tcp_messages::Message_server<Tracking_service>;
+    struct Tracking_server : tcp_messages::Message_server<Tracking_service>{
+        void send_step(const cell_world::Step &);
+    };
 }
