@@ -10,16 +10,6 @@ namespace agent_tracking {
 
     World_info world_info;
 
-    bool Tracking_service::register_consumer() {
-        cout << "register_consumer" << endl;
-        return _subscribe();
-    }
-
-    bool Tracking_service::unregister_consumer() {
-        cout << "unregister_consumer" << endl;
-        return _unsubscribe();
-    }
-
     void Tracking_service::unrouted_message(const Message &) {
         send_data(Message("wrong_message_result", "fail").to_json());
     }

@@ -8,25 +8,13 @@ class TrackingService (MessageServer):
     def __init__(self):
         MessageServer.__init__(self)
         self.world_info = World_info()
-        self.registered_consumers = []
         #consumer
-        self.router.add_route("^register_consumer$", self.register_consumer)
-        self.router.add_route("^unregister_consumer$", self.unregister_consumer)
+        self.allow_subscription = True
+        self.router.add_route("^register_consumer$", self.__subscribe_connection__)
+        self.router.add_route("^unregister_consumer$", self.__unsubscribe_connection__)
         #world
         self.router.add_route("^set_world$", self.set_world, World_info)
         self.router.add_route("^get_world$", self.get_world)
-
-    # routes
-    # consumer
-    def register_consumer(self, message: Message) -> bool:
-        print("register_consumer")
-        self.registered_consumers.append(message._source)
-        return True
-
-    def unregister_consumer(self, message: Message) -> bool:
-        print("unregister_consumer")
-        self.registered_consumers.remove(message._source)
-        return True
 
     #world
     def get_world(self) -> World_info:
@@ -49,14 +37,4 @@ class TrackingService (MessageServer):
         return default_port
 
     def send_step(self, step: Step):
-        self.send_update(Message(step.agent_name + "_step", step))
-
-    def send_update(self, message: Message):
-        to_remove = []
-        for consumer in self.registered_consumers:
-            try:
-                consumer.send(message)
-            except:
-                to_remove.append(consumer)
-        for consumer in to_remove:
-            self.registered_consumers.remove(consumer)
+        self.broadcast_subscribed(Message(step.agent_name + "_step", step))
