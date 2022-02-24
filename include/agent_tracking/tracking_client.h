@@ -31,5 +31,6 @@ namespace agent_tracking {
         std::atomic<bool> registered_consumer;
         std::map<std::string, cell_world::Step> current_states;
         cell_world::World_info world_info;
+        bool is_local;
     };
 }

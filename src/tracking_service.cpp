@@ -32,9 +32,14 @@ namespace agent_tracking {
     }
 
     void Tracking_server::send_step(const Step &step) {
-        Step converted_step = step;
-        Message update (converted_step.agent_name + "_step", converted_step);
-        broadcast_subscribed(update);
+        for (auto local_client: local_clients){
+            local_client->on_step(step);
+        }
+        if (!clients.empty()) {
+            Step converted_step = step;
+            Message update(converted_step.agent_name + "_step", converted_step);
+            broadcast_subscribed(update);
+        }
     }
 
     bool Tracking_service::set_world(const World_info &new_world_info) {

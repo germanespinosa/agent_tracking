@@ -14,16 +14,19 @@ namespace agent_tracking {
     }
 
     bool Tracking_client::connect(const std::string &ip) {
+        if (is_local) return true;
         return Message_client::connect(ip, Tracking_service::get_port());
     }
 
     bool Tracking_client::register_consumer() {
+        if (is_local) return true;
         auto response = send_request(Message("register_consumer"));
         registered_consumer = response.body == "success";
         return registered_consumer;
     }
 
     bool Tracking_client::unregister_consumer() {
+        if (is_local) return true;
         auto response = send_request(Message("unregister_consumer"));
         if (response.body == "success") {
             registered_consumer = false;
@@ -32,7 +35,7 @@ namespace agent_tracking {
         return false;
     }
 
-    Tracking_client::Tracking_client() {
+    Tracking_client::Tracking_client(): is_local(false) {
 
     }
 

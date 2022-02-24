@@ -35,7 +35,10 @@ dependency_include(include)
 ### TESTS
 ###
 install_dependency(https://github.com/germanespinosa/catch CatchTests)
+
 test_library(agent_tracking catchtests/tracking_service.cpp)
+
+test_library(agent_tracking catchtests/performance.cpp)
 
 include(GNUInstallDirs)
 
