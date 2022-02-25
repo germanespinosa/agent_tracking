@@ -24,7 +24,7 @@ namespace agent_tracking {
         void send_step(const cell_world::Step &);
 
         template< typename T, typename... Ts>
-        T &create_local_client(Ts&... vs){
+        T &create_local_client(Ts... vs){
             static_assert(std::is_base_of<Tracking_client, T>::value, "T must inherit from Tracking_client");
             auto new_local_client = new T{ vs... };
             local_clients.push_back((Tracking_client *) new_local_client);
