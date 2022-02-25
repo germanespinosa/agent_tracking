@@ -10,21 +10,6 @@ class TrackingService (MessageServer):
         self.world_info = World_info()
         #consumer
         self.allow_subscription = True
-        self.router.add_route("^register_consumer$", self.__subscribe_connection__)
-        self.router.add_route("^unregister_consumer$", self.__unsubscribe_connection__)
-        #world
-        self.router.add_route("^set_world$", self.set_world, World_info)
-        self.router.add_route("^get_world$", self.get_world)
-
-    #world
-    def get_world(self) -> World_info:
-        print("get_world")
-        return self.world_info
-
-    def set_world(self, world_info: World_info):
-        print("set_world")
-        self.world_info = world_info
-        self.send_update(Message("world_update", self.world_info))
 
     @staticmethod
     def port() -> int:

@@ -10,9 +10,11 @@ using namespace tcp_messages;
 using namespace this_thread;
 
 struct Client : Tracking_client{
+    Client(const string &name) : name(name) {}
     void on_step(const Step &step) override{
-        cout << step << endl;
+        cout << name << ":" << step << endl;
     }
+    std::string name;
 };
 
 
@@ -26,20 +28,23 @@ TEST_CASE("tracking simulator") {
     step.data = "";
     step.rotation = 0;
     step.location = {0,0};
-    step.coordinates = {0,0};
     step.time_stamp = 0;
-    Client client;
-    client.connect("127.0.0.1");
+    auto &client = server.create_local_client<Client>("your name");
     client.register_consumer();
     sleep_for(1s);
-    for (step.frame=0; step.frame<1000000; step.frame++) {
+    for (step.frame=0; step.frame<1000; step.frame++) {
         step.location.x = (float) step.frame / 10;
         step.location.y = (float) step.frame / 20;
-        step.coordinates.x = step.frame % 10;
-        step.coordinates.y = -(step.frame % 20);
         step.time_stamp = ts.to_seconds();
         server.send_step(step);
-        sleep_for(30ms);
+    }
+    //client.unregister_consumer();
+    ts.reset();
+    for (step.frame=0; step.frame<1000; step.frame++) {
+        step.location.x = (float) step.frame / 10;
+        step.location.y = (float) step.frame / 20;
+        step.time_stamp = ts.to_seconds();
+        server.send_step(step);
     }
     server.stop();
 }

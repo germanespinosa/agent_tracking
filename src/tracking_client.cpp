@@ -14,28 +14,20 @@ namespace agent_tracking {
     }
 
     bool Tracking_client::connect(const std::string &ip) {
-        if (is_local) return true;
+        if (local_server) return true;
         return Message_client::connect(ip, Tracking_service::get_port());
     }
 
     bool Tracking_client::register_consumer() {
-        if (is_local) return true;
-        auto response = send_request(Message("register_consumer"));
-        registered_consumer = response.body == "success";
-        return registered_consumer;
+        return subscribe();
     }
+
 
     bool Tracking_client::unregister_consumer() {
-        if (is_local) return true;
-        auto response = send_request(Message("unregister_consumer"));
-        if (response.body == "success") {
-            registered_consumer = false;
-            return true;
-        }
-        return false;
+        return unsubscribe();
     }
 
-    Tracking_client::Tracking_client(): is_local(false) {
+    Tracking_client::Tracking_client() {
 
     }
 
@@ -55,11 +47,21 @@ namespace agent_tracking {
         easy_tcp::Client::disconnect();
     }
 
-    World_info Tracking_client::get_world() {
-        return send_request(Message("get_world")).get_body<World_info>();
+    bool Tracking_client::subscribe() {
+        if (local_server) {
+            return local_server->subscribe_local(this);
+
+        } else {
+            return Message_client::subscribe();
+        }
     }
 
-    void Tracking_client::on_world_update(const World_info &new_world_info) {
-        world_info = new_world_info;
+    bool Tracking_client::unsubscribe() {
+        if (local_server) {
+            return local_server->unsubscribe_local(this);
+
+        } else {
+            return Message_client::unsubscribe();
+        }
     }
 }

@@ -7,9 +7,6 @@ using namespace tcp_messages;
 
 namespace agent_tracking {
 
-
-    World_info world_info;
-
     void Tracking_service::unrouted_message(const Message &) {
         send_data(Message("wrong_message_result", "fail").to_json());
     }
@@ -27,12 +24,8 @@ namespace agent_tracking {
         return atoi(port_str.c_str());
     }
 
-    cell_world::World_info Tracking_service::get_world() {
-        return world_info;
-    }
-
     void Tracking_server::send_step(const Step &step) {
-        for (auto local_client: local_clients){
+        for (auto local_client: subscribed_local_clients){
             local_client->on_step(step);
         }
         if (!clients.empty()) {
@@ -40,10 +33,5 @@ namespace agent_tracking {
             Message update(converted_step.agent_name + "_step", converted_step);
             broadcast_subscribed(update);
         }
-    }
-
-    bool Tracking_service::set_world(const World_info &new_world_info) {
-        world_info = new_world_info;
-        return true;
     }
 }
