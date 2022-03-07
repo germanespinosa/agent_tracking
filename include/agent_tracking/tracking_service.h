@@ -2,12 +2,17 @@
 #include <cell_world.h>
 #include <tcp_messages.h>
 #include <agent_tracking/tracking_client.h>
+#include <map>
 
 namespace agent_tracking {
     struct Tracking_service : tcp_messages::Message_service {
         Routes(
+                Add_route_with_response("set_throughput", set_throughput, float);
                 Allow_subscription();
         )
+
+        //throughput
+        bool set_throughput(float);
 
         //unrouted
         void unrouted_message(const tcp_messages::Message &) override;
@@ -18,6 +23,10 @@ namespace agent_tracking {
 
         //static
         static int get_port();
+
+        //member
+        std::map<std::string, cell_world::Timer> last_step_send;
+        float throughput = 0; // max
     };
 
     struct Tracking_server : tcp_messages::Message_server<Tracking_service>{
