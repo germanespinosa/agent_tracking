@@ -44,3 +44,6 @@ class TrackingClient (MessageClient):
 
     def contains_agent_state(self, agent_name: str) -> bool:
         return agent_name in self.current_states
+
+    def set_throughput(self, throughput) -> bool:
+        return self.send_request(Message("set_throughput", throughput)).get_body(bool)
