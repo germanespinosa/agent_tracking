@@ -11,9 +11,6 @@ string(APPEND CMAKE_CXX_FLAGS " -pthread ")
 
 find_package(Dependencies)
 
-install_dependency(https://github.com/germanespinosa/tcp-messages Tcp_messages)
-install_dependency(https://github.com/germanespinosa/cellworld Cellworld)
-
 ###
 ### MAIN LIBRARY SETUP
 ###
@@ -23,6 +20,15 @@ set( agent_tracking_files
 		src/tracking_client.cpp)
 
 add_library(agent_tracking ${agent_tracking_files})
+
+install_git_dependency(Tcp_messages https://github.com/germanespinosa/tcp-messages
+		CMAKE_PROJECT
+		TARGET agent_tracking)
+
+install_git_dependency(Cellworld https://github.com/germanespinosa/cellworld
+		CMAKE_PROJECT
+		TARGET agent_tracking)
+
 
 target_link_libraries(agent_tracking
 		LINK_PUBLIC
@@ -34,11 +40,11 @@ dependency_include(include)
 ###
 ### TESTS
 ###
-install_dependency(https://github.com/germanespinosa/catch CatchTests)
-
-test_library(agent_tracking catchtests/tracking_service.cpp)
-
-test_library(agent_tracking catchtests/performance.cpp)
+#install_dependency(https://github.com/germanespinosa/catch CatchTests)
+#
+#test_library(agent_tracking catchtests/tracking_service.cpp)
+#
+#test_library(agent_tracking catchtests/performance.cpp)
 
 include(GNUInstallDirs)
 
