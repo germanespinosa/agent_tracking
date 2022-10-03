@@ -35,7 +35,7 @@ target_link_libraries(agent_tracking
 		cellworld
 		tcp_messages )
 
-dependency_include(include)
+include_directories(include)
 
 ###
 ### TESTS
