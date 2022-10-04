@@ -12,7 +12,7 @@ namespace agent_tracking {
                 )
 
         Tracking_client();
-        ~Tracking_client();
+        virtual ~Tracking_client();
 
         virtual void on_step(const cell_world::Step &);
 
