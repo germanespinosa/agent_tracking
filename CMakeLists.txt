@@ -23,13 +23,11 @@ add_library(agent_tracking ${agent_tracking_files})
 
 install_git_dependency(Tcp_messages https://github.com/germanespinosa/tcp-messages
 		CMAKE_PROJECT
-		TARGET agent_tracking
 		IMPORT_TARGETS tcp_messages
 		CONNECTED)
 
 install_git_dependency(Cellworld https://github.com/germanespinosa/cellworld
-		CMAKE_PROJECT
-		TARGET agent_tracking)
+		CMAKE_PROJECT)
 
 target_link_libraries(agent_tracking
 		LINK_PUBLIC
