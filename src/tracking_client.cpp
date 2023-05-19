@@ -14,14 +14,30 @@ namespace agent_tracking {
     }
 
     bool Tracking_client::connect(const std::string &ip) {
+        return connect(ip, Tracking_service::get_port());
+    }
+
+    bool Tracking_client::connect(const std::string &ip, int port) {
         if (local_server) return true;
-        return Message_client::connect(ip, Tracking_service::get_port());
+        is_connected = Message_client::connect(ip, port);
+        return is_connected;
     }
 
     bool Tracking_client::register_consumer() {
         return subscribe();
     }
 
+    void Tracking_client::send_step(const cell_world::Step &step) {
+        if (is_connected) {
+            if (local_server) {
+                local_server->send_step(step);
+            } else {
+                send_message(Message("send_step", step));
+            }
+        } else {
+            this->on_step(step);
+        }
+    }
 
     bool Tracking_client::unregister_consumer() {
         return unsubscribe();
