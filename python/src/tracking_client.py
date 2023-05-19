@@ -20,8 +20,10 @@ class TrackingClient (MessageClient):
         finally:
             pass
 
-    def connect(self, ip: str = "127.0.0.1") -> bool:
-        return MessageClient.connect(self, ip, TrackingService.port())
+    def connect(self, ip: str = "127.0.0.1", port: int = None) -> bool:
+        if port is None:
+            port = TrackingService.port()
+        return MessageClient.connect(self, ip, port)
 
     def register_consumer(self, call_back=None):
         if call_back:
