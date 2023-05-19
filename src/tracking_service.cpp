@@ -29,6 +29,10 @@ namespace agent_tracking {
         return true;
     }
 
+    void Tracking_service::send_step(const cell_world::Step &step) {
+        ((Tracking_server *) _server)->send_step(step);
+    }
+
     void Tracking_server::send_step(const Step &step) {
         for (auto local_client: subscribed_local_clients){
             local_client->on_step(step);
