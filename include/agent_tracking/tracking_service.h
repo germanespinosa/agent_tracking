@@ -8,11 +8,15 @@ namespace agent_tracking {
     struct Tracking_service : tcp_messages::Message_service {
         Routes(
                 Add_route_with_response("set_throughput", set_throughput, float);
+                Add_route("send_step", send_step, cell_world::Step);
                 Allow_subscription();
         )
 
         //throughput
         bool set_throughput(float);
+
+        //step
+        void send_step(const cell_world::Step &);
 
         //unrouted
         void unrouted_message(const tcp_messages::Message &) override;
