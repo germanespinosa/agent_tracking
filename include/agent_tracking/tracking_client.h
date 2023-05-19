@@ -18,7 +18,11 @@ namespace agent_tracking {
 
         bool connect();
 
+        void send_step(const cell_world::Step &);
+
         bool connect(const std::string &ip);
+
+        bool connect(const std::string &ip, int port);
 
         bool register_consumer();
 
@@ -34,5 +38,6 @@ namespace agent_tracking {
         std::atomic<bool> registered_consumer;
         std::map<std::string, cell_world::Step> current_states;
         Tracking_server *local_server = nullptr;
+        bool is_connected = false;
     };
 }
