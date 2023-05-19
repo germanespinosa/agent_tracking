@@ -10,6 +10,7 @@ class TrackingService (MessageServer):
         self.world_info = World_info()
         #consumer
         self.allow_subscription = True
+        self.router.add_route("send_step", self.send_step, Step)
 
     @staticmethod
     def port() -> int:
