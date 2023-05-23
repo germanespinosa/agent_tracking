@@ -44,11 +44,13 @@ install_git_dependency(Tcp_messages https://github.com/germanespinosa/tcp-messag
 		CONNECTED)
 
 install_git_dependency(Cellworld https://github.com/germanespinosa/cellworld
-		CMAKE_PROJECT)
+		CMAKE_PROJECT
+		IMPORT_TARGETS cellworld json-cpp )
 
 target_link_libraries(agent_tracking
 		LINK_PUBLIC
 		cellworld
+		json-cpp
 		tcp_messages )
 
 include_directories(include)

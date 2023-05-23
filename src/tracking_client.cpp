@@ -80,4 +80,13 @@ namespace agent_tracking {
             return Message_client::unsubscribe();
         }
     }
+
+    bool Tracking_client::set_throughput(float t) {
+        if (local_server) {
+            return false;
+
+        } else {
+            return send_request(Message("set_throughput", t)).get_body<bool>();;
+        }
+    }
 }

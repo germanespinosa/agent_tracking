@@ -32,6 +32,8 @@ namespace agent_tracking {
 
         bool unsubscribe();
 
+        bool set_throughput(float);
+
         cell_world::Step &get_current_state(const std::string &agent_name);
         bool contains_agent_state(const std::string &agent_name);
 
