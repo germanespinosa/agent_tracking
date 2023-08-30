@@ -38,12 +38,12 @@ set( agent_tracking_files
 
 add_library(agent_tracking ${agent_tracking_files})
 
-install_git_dependency(Tcp_messages https://github.com/germanespinosa/tcp-messages
+install_git_dependency(Tcp_messages https://github.com/cellworld/dependency_tcp-messages
 		CMAKE_PROJECT
 		IMPORT_TARGETS tcp_messages
 		CONNECTED)
 
-install_git_dependency(Cellworld https://github.com/germanespinosa/cellworld
+install_git_dependency(Cellworld https://github.com/cellworld/cellworld
 		CMAKE_PROJECT
 		IMPORT_TARGETS cellworld json-cpp )
 
